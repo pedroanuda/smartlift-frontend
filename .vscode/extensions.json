@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "eamodio.gitlens",
+        "seatonjiang.gitmoji-vscode",
+        "esbenp.prettier-vscode"
+    ]
+}
