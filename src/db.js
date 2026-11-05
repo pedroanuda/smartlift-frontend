@@ -1,4 +1,5 @@
 const mockDb = {
+  logado: null,
   usuarios: [
     {
       id: 1,

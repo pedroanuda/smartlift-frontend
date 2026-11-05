@@ -33,6 +33,10 @@ export default class OcorrenciaService {
     return db.dados.ocorrencias.map(ocorrenciaObjectToInstance);
   }
 
+  static buscarOcorrenciasPorClienteId(idCliente) {
+    return this.buscarOcorrencias().filter(ocorrencia => ocorrencia.contrato?.idCliente === idCliente);
+  }
+
   static buscarOcorrenciaPorId(id) {
     const ocorrencia = db.dados.ocorrencias.find(oc => oc.id === id);
     return ocorrencia ? ocorrenciaObjectToInstance(ocorrencia) : null;

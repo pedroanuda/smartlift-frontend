@@ -2,6 +2,7 @@
     "recommendations": [
         "eamodio.gitlens",
         "seatonjiang.gitmoji-vscode",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "styled-components.vscode-styled-components"
     ]
 }
