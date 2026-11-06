@@ -27,6 +27,7 @@ import {
 } from "../../components/dashboard/CustomerDashboardWidgets";
 import OcorrenciaService from "../../services/OcorrenciaService";
 import ContratoService from "../../services/ContratoService";
+import { useNavigate } from "react-router";
 
 const STATUS_TABS = [
   { id: "abertas", label: "Abertas" },
@@ -77,6 +78,7 @@ function jumpTo(sectionId) {
 }
 
 export default function ClienteDashboard({ usuario }) {
+  const navigate = useNavigate();
   const contracts = ContratoService.buscarContratosPorClienteId(usuario.id);
   const occurrences = OcorrenciaService.buscarOcorrenciasPorClienteId(usuario.id);
   const activeContracts = contracts.filter(contract => contract.statusOperacional?.toLocaleLowerCase("pt-BR") === "ativo");
@@ -95,7 +97,7 @@ export default function ClienteDashboard({ usuario }) {
 
   const navigation = [
     { label: "Painel do Cliente", icon: "⌂", active: true, onClick: () => jumpTo("painel") },
-    { label: "Minhas Ocorrências", icon: "▤", onClick: () => jumpTo("ocorrencias") },
+    { label: "Minhas Ocorrências", icon: "▤",       onClick: () => navigate("/ocorrencias/nova")    },
     { label: "Meus Equipamentos", icon: "▣", onClick: () => jumpTo("equipamento") },
     { label: "Contratos", icon: "▧", onClick: () => jumpTo("equipamento") },
     { label: "Documentos", icon: "▤", disabled: true },
@@ -103,6 +105,7 @@ export default function ClienteDashboard({ usuario }) {
     { label: "Perfil e Acesso", icon: "♙", disabled: true },
     { label: "Ajuda e Suporte", icon: "?", disabled: true },
   ];
+ 
 
   return (
     <DashboardShell

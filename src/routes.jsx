@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import ProtectedRoute from "./pages/ProtectedRoute";
+import NovaOcorrencia from "./pages/customer/NovaOcorrencia";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ export const router = createBrowserRouter([
         path: "/",
         element: <Home />,
       },
-    ]
-  }
+      {
+        path: "/ocorrencias/nova",
+        element: <NovaOcorrencia />,
+      },
+    ],
+  },
 ]);
