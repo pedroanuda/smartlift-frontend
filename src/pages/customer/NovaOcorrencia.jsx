@@ -14,9 +14,10 @@ import UsuarioService from "../../services/UsuarioService";
 import ContratoService from "../../services/ContratoService";
 import OcorrenciaService from "../../services/OcorrenciaService";
 
+
 // ------------------------------------------
 // ESTILIZAÇÃO
-// ------------------------------------------
+// ----------------------------------
 
 const FormContainer = styled.section`
   background: #fff;
@@ -367,37 +368,58 @@ export default function NovaOcorrencia() {
     try {
       const novaOcorrencia = {
         id: Date.now(),
+        dataCriacao: new Date().toISOString(),
 
         contratoId: form.contratoId,
         descricao: form.descricao.trim(),
         categoria: form.categoria,
         status: "Pendente",
 
-        // Relacionamentos já previstos no modelo original
+        prioridade: form.prioridade,
+        frequencia: form.frequencia,
+        horario:
+          form.frequencia === "horario"
+            ? form.horario
+            : null,
+
         atendimentos: [],
 
         avaliacao: {
           nota: null,
-          comentario: ""
+          comentario: "",
         },
 
-        // Informações adicionais coletadas pelo formulário.
-        // Permanecem como metadados no registro bruto.
-        prioridade: form.prioridade,
-        frequencia: form.frequencia,
-        horario: form.frequencia === "horario"
-          ? form.horario
-          : null,
-
-        anexos: arquivos.map(file => ({
+        anexos: arquivos.map((file) => ({
           nome: file.name,
           tipo: file.type,
-          tamanho: file.size
-        }))
+          tamanho: file.size,
+        })),
       };
 
+      // Salva e dispara a atualização do dashboard.
+      OcorrenciaService.salvarNovaOcorrencia(novaOcorrencia);
+
+      setErro(false);
+      setMensagem(
+        `Ocorrência registrada com sucesso! Código: ${novaOcorrencia.id}`
+      );
+
+      setForm({
+        contratoId: "",
+        categoria: "",
+        prioridade: "Média",
+        descricao: "",
+        frequencia: "todo",
+        horario: "",
+      });
+
+      setArquivos([]);
+      event.target.reset();
+
+
       // Atualização da base simulada em memória
-      db.dados.ocorrencias.push(novaOcorrencia);
+      //db.dados.ocorrencias.push(novaOcorrencia);
+      //OcorrenciaService.salvarNovaOcorrencia(novaOcorrencia);
 
       // Persistência local do registro criado
       const registrosSalvos = JSON.parse(
@@ -694,3 +716,6 @@ export default function NovaOcorrencia() {
     </DashboardShell>
   );
 }
+window.dispatchEvent(
+  new Event("smartlift:ocorrencias-atualizadas")
+);

@@ -1,11 +1,15 @@
+
 import UsuarioService from "../services/UsuarioService";
 import db from "../db";
 
 import ClienteDashboard from "./customer/ClienteDashboard";
 import TecnicoDashboard from "./technician/TecnicoDashboard";
+import GestorDashboard from "./manager/GestorDashboard";
 
 export default function Home() {
-  const usuario = UsuarioService.buscarUsuarioPorId(db.dados.logado);
+  const usuario = UsuarioService.buscarUsuarioPorId(
+    db.dados.logado
+  );
 
   if (!usuario) {
     return <div>Usuário não encontrado.</div>;
@@ -19,5 +23,9 @@ export default function Home() {
     return <TecnicoDashboard usuario={usuario} />;
   }
 
-  return <div>Bem-vindo, {usuario.nome}!</div>;
+  if (usuario.tipo === "gestor") {
+    return <GestorDashboard usuario={usuario} />;
+  }
+
+  return <div>Tipo de usuário não reconhecido.</div>;
 }

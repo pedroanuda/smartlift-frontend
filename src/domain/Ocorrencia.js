@@ -1,7 +1,11 @@
+
 import AvaliacaoOcorrencia from "./AvaliacaoOcorrencia";
 
 export default class Ocorrencia {
   constructor(ocorrenciaObject) {
+    // Preserva os campos adicionais do cadastro.
+    Object.assign(this, ocorrenciaObject);
+
     this.id = ocorrenciaObject.id;
     this.contratoId = ocorrenciaObject.contratoId;
     this.descricao = ocorrenciaObject.descricao;
@@ -10,11 +14,12 @@ export default class Ocorrencia {
 
     this.contrato = null;
     this.atendimentos = [];
-    this.avaliacao = new AvaliacaoOcorrencia(
-      ocorrenciaObject.avaliacao.nota, 
-      ocorrenciaObject.avaliacao.comentario
-    );
 
-    // TODO: Adicionar anexos/imagens se possível
+    const avaliacao = ocorrenciaObject.avaliacao || {};
+
+    this.avaliacao = new AvaliacaoOcorrencia(
+      avaliacao.nota ?? null,
+      avaliacao.comentario ?? ""
+    );
   }
 }
