@@ -12,6 +12,7 @@ import {
 import db from "../../db";
 import UsuarioService from "../../services/UsuarioService";
 import ContratoService from "../../services/ContratoService";
+import OcorrenciaService from "../../services/OcorrenciaService";
 
 // ------------------------------------------
 // ESTILIZAÇÃO
