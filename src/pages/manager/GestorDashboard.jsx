@@ -953,12 +953,52 @@ export default function GestorDashboard({ usuario }) {
     },
   ];
 
+  const notificacoes = useMemo(() => {
+    const lista = [];
+    const criticasPendentes = ocorrencias.filter(
+      (item) => (item.prioridade || "Média") === "Alta" && grupoStatus(item.status) !== "concluidas"
+    ).length;
+
+    if (criticasPendentes > 0) {
+      lista.push({
+        id: "gestor-criticas",
+        title: `${criticasPendentes} ocorrência(s) de alta prioridade`,
+        description: "Clique para filtrar as ocorrências pendentes na tabela.",
+        unread: true,
+        onClick: () => setFiltro("pendentes"),
+      });
+    }
+
+    if (totais.pendentes > 0) {
+      lista.push({
+        id: "gestor-pendentes",
+        title: `${totais.pendentes} ocorrência(s) pendente(s)`,
+        description: "Aguardando atribuição ou início do atendimento.",
+        unread: true,
+        onClick: () => setFiltro("pendentes"),
+      });
+    }
+
+    if (totais.atendimento > 0) {
+      lista.push({
+        id: "gestor-atendimento",
+        title: `${totais.atendimento} em atendimento`,
+        description: "Atendimentos atualmente em execução pela equipe técnica.",
+        unread: false,
+        onClick: () => setFiltro("atendimento"),
+      });
+    }
+
+    return lista;
+  }, [ocorrencias, totais]);
+
   return (
     <DashboardShell
       user={usuario}
       role="Gestor"
       sidebarLabel="Navegação do gestor"
       navigation={navegacao}
+      notifications={notificacoes}
       helpCard={{
         title: "Central SmartLift",
         description:

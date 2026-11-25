@@ -460,12 +460,23 @@ export default function NovaOcorrencia() {
     }
   }
 
+  const ocorrenciasCliente = OcorrenciaService.buscarOcorrenciasPorClienteId(usuario.id);
+
+  const notifications = ocorrenciasCliente.slice(0, 3).map((ocorrencia) => ({
+    id: `ocorrencia-${ocorrencia.id}`,
+    title: `${ocorrencia.categoria || "Ocorrência"} · ${ocorrencia.status}`,
+    description: ocorrencia.descricao,
+    unread: !ocorrencia.status?.toLowerCase().includes("finaliz") && !ocorrencia.status?.toLowerCase().includes("conclu"),
+    onClick: () => navigate("/"),
+  }));
+
   return (
     <DashboardShell
       user={usuario}
       role="Cliente"
       sidebarLabel="Navegação do cliente"
       navigation={navigation}
+      notifications={notifications}
       helpCard={{
         title: "Precisa de ajuda?",
         description: "Fale com a nossa central de atendimento 24h.",

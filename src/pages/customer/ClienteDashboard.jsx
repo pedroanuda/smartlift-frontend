@@ -107,12 +107,41 @@ export default function ClienteDashboard({ usuario }) {
   ];
  
 
+  const notifications = [
+    ...occurrences
+      .filter((occurrence) => getGroup(occurrence.status) !== "concluidas")
+      .slice(0, 3)
+      .map((occurrence) => ({
+        id: `ocorrencia-${occurrence.id}`,
+        title: `${getOccurrenceCode(occurrence)} · ${occurrence.status}`,
+        description: occurrence.descricao,
+        unread: true,
+        onClick: () => {
+          setSelectedTab(getGroup(occurrence.status));
+          jumpTo("ocorrencias");
+        },
+      })),
+    ...(pendingEvaluation
+      ? [{
+          id: `avaliacao-${pendingEvaluation.id}`,
+          title: "Avaliação pendente",
+          description: `Avalie o atendimento concluído (${getOccurrenceCode(pendingEvaluation)}).`,
+          unread: true,
+          onClick: () => {
+            setSelectedTab("concluidas");
+            jumpTo("ocorrencias");
+          },
+        }]
+      : []),
+  ];
+
   return (
     <DashboardShell
       user={usuario}
       role="Cliente"
       sidebarLabel="Navegação do cliente"
       navigation={navigation}
+      notifications={notifications}
       helpCard={{
         title: "Precisa de ajuda?",
         description: "Fale com a nossa central de atendimento 24h.",

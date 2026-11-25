@@ -337,12 +337,35 @@ export default function TecnicoDashboard({ usuario }) {
 
 
   
+  const notifications = [
+    {
+      id: "tecnico-pendente",
+      title: "1 notificação pendente",
+      description: "Você possui 1 atualização pendente para consultar nos seus atendimentos.",
+      unread: true,
+      onClick: () => jumpTo("notificacoes-tecnico"),
+    },
+    ...(ocorrencias.some((item) => (item.status || "Pendente").toLowerCase().includes("pendente"))
+      ? [{
+          id: "tecnico-fila",
+          title: "Ocorrências pendentes na fila",
+          description: "Confira os chamados aguardando início de atendimento.",
+          unread: false,
+          onClick: () => {
+            setFiltro("Pendentes");
+            jumpTo("ocorrencias-tecnico");
+          },
+        }]
+      : []),
+  ];
+
   return (
     <DashboardShell
       user={usuario}
       role="Técnico"
       sidebarLabel="Navegação do técnico"
       navigation={navigation}
+      notifications={notifications}
       helpCard={helpCard}
     >
       <DashboardMain id="painel-tecnico">
