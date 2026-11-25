@@ -135,7 +135,7 @@ export function ServiceTimeline({ occurrence, position, steps }) {
             const complete = index <= position;
             return (
               <TimelineItem key={title} $complete={complete}>
-                <span>{complete ? "✓" : index + 1}</span>
+                <span>{complete ? <i className="fa-solid fa-check" aria-hidden="true" /> : index + 1}</span>
                 <div>
                   <strong>{title}</strong>
                   <p>{index === position ? occurrence.descricao : description}</p>

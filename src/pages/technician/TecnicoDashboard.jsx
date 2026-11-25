@@ -62,6 +62,9 @@ const MetricCard = styled.div`
     color: #1765b1;
     font-weight: 600;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
   }
 `;
 
@@ -178,6 +181,12 @@ const Metadata = styled.div`
   border-top: 1px solid #edf0f4;
   color: #68758a;
   font-size: 0.75rem;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
 `;
 
 const EmptyMessage = styled.div`
@@ -258,38 +267,38 @@ export default function TecnicoDashboard({ usuario }) {
   const navigation = [
     {
       label: "Painel do Técnico",
-      icon: "⌂",
+      icon: <i className="fa-solid fa-house" aria-hidden="true" />,
       active: true,
       onClick: () => jumpTo("painel-tecnico"),
     },
     {
       label: "Ocorrências Atribuídas",
-      icon: "▤",
+      icon: <i className="fa-solid fa-clipboard-list" aria-hidden="true" />,
       onClick: () => jumpTo("ocorrencias-tecnico"),
     },
     {
       label: "Notificações",
-      icon: "♧",
+      icon: <i className="fa-solid fa-bell" aria-hidden="true" />,
       badge: "1",
       onClick: () => jumpTo("notificacoes-tecnico"),
     },
     {
       label: "Perfil e Acesso",
-      icon: "♙",
+      icon: <i className="fa-solid fa-user" aria-hidden="true" />,
       disabled: true,
     },
     {
       label: "Ajuda e Suporte",
-      icon: "?",
+      icon: <i className="fa-solid fa-circle-question" aria-hidden="true" />,
       onClick: () => jumpTo("suporte-tecnico"),
     },
   ];
 
   const metrics = [
-    { icon: "⌛", label: "Ocorrências pendentes", number: 2, filter: "Pendentes" },
-    { icon: "🔧", label: "Em andamento", number: 1, filter: "Em andamento" },
-    { icon: "⚠️", label: "SLA crítico", number: 1, filter: "Pendentes" },
-    { icon: "✓", label: "Concluídas (30 dias)", number: 6, filter: "Concluídas" },
+    { icon: <i className="fa-solid fa-hourglass-half" aria-hidden="true" />, color: "#b67a19", label: "Ocorrências pendentes", number: 2, filter: "Pendentes" },
+    { icon: <i className="fa-solid fa-wrench" aria-hidden="true" />, color: "#2861c8", label: "Em andamento", number: 1, filter: "Em andamento" },
+    { icon: <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />, color: "#d9534f", label: "SLA crítico", number: 1, filter: "Pendentes" },
+    { icon: <i className="fa-solid fa-circle-check" aria-hidden="true" />, color: "#398e4f", label: "Concluídas (30 dias)", number: 6, filter: "Concluídas" },
   ];
 
   const formatDate = (date) => {
@@ -346,7 +355,7 @@ export default function TecnicoDashboard({ usuario }) {
           <MetricsGrid>
             {metrics.map((metric) => (
               <MetricCard key={metric.label}>
-                <div className="metric-icon">{metric.icon}</div>
+                <div className="metric-icon" style={{ color: metric.color }}>{metric.icon}</div>
                 <div className="metric-label">{metric.label}</div>
                 <div className="metric-number">{metric.number}</div>
                 <button
@@ -356,7 +365,7 @@ export default function TecnicoDashboard({ usuario }) {
                     jumpTo("ocorrencias-tecnico");
                   }}
                 >
-                  Ver todas →
+                  Ver todas <i className="fa-solid fa-arrow-right" aria-hidden="true" />
                 </button>
               </MetricCard>
             ))}
@@ -416,10 +425,14 @@ export default function TecnicoDashboard({ usuario }) {
 
                     <Metadata>
                       <span>
-                        ◷ Iniciado em{" "}
+                        <i className="fa-solid fa-clock" aria-hidden="true" />
+                        Iniciado em{" "}
                         {formatDate(atendimento?.dataHoraInicioAtendimento)}
                       </span>
-                      <span>⌖ {getLocation(ocorrencia)}</span>
+                      <span>
+                        <i className="fa-solid fa-location-dot" aria-hidden="true" />
+                        {getLocation(ocorrencia)}
+                      </span>
                       <span>#{ocorrencia.id}</span>
                     </Metadata>
                   </OccurrenceCard>

@@ -270,47 +270,47 @@ export default function NovaOcorrencia() {
   const navigation = [
     {
       label: "Painel do Cliente",
-      icon: "⌂",
+      icon: <i className="fa-solid fa-house" aria-hidden="true" />,
       onClick: () => navigate("/")
     },
     {
       label: "Minhas Ocorrências",
-      icon: "▤",
+      icon: <i className="fa-solid fa-clipboard-list" aria-hidden="true" />,
       onClick: () => navigate("/")
     },
     {
       label: "Cadastrar Ocorrência",
-      icon: "✚",
+      icon: <i className="fa-solid fa-circle-plus" aria-hidden="true" />,
       active: true
     },
     {
       label: "Meus Equipamentos",
-      icon: "▣",
+      icon: <i className="fa-solid fa-elevator" aria-hidden="true" />,
       onClick: () => navigate("/")
     },
     {
       label: "Contratos",
-      icon: "▧",
+      icon: <i className="fa-solid fa-file-contract" aria-hidden="true" />,
       onClick: () => navigate("/")
     },
     {
       label: "Documentos",
-      icon: "▤",
+      icon: <i className="fa-solid fa-file-lines" aria-hidden="true" />,
       disabled: true
     },
     {
       label: "Notificações",
-      icon: "♧",
+      icon: <i className="fa-solid fa-bell" aria-hidden="true" />,
       onClick: () => navigate("/")
     },
     {
       label: "Perfil e Acesso",
-      icon: "♙",
+      icon: <i className="fa-solid fa-user" aria-hidden="true" />,
       disabled: true
     },
     {
       label: "Ajuda e Suporte",
-      icon: "?",
+      icon: <i className="fa-solid fa-circle-question" aria-hidden="true" />,
       disabled: true
     }
   ];

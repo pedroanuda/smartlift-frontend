@@ -53,6 +53,10 @@ const StyledCard = styled.div`
     padding: 0.5rem 1rem; 
     border-radius: 10px; 
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
   }
 `;
 
@@ -62,7 +66,7 @@ function AccessCard({ role, description, onClick }) {
       <h3>{role}</h3>
       <p>{description}</p>
       <button type="button" onClick={onClick}>
-        Acessar →
+        Acessar <i className="fa-solid fa-arrow-right" aria-hidden="true" />
       </button>
     </StyledCard>
   )

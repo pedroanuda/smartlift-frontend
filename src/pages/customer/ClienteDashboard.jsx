@@ -96,14 +96,14 @@ export default function ClienteDashboard({ usuario }) {
   const timelinePosition = trackedOccurrence ? getTimelinePosition(trackedOccurrence.status) : -1;
 
   const navigation = [
-    { label: "Painel do Cliente", icon: "⌂", active: true, onClick: () => jumpTo("painel") },
-    { label: "Minhas Ocorrências", icon: "▤",       onClick: () => navigate("/ocorrencias/nova")    },
-    { label: "Meus Equipamentos", icon: "▣", onClick: () => jumpTo("equipamento") },
-    { label: "Contratos", icon: "▧", onClick: () => jumpTo("equipamento") },
-    { label: "Documentos", icon: "▤", disabled: true },
-    { label: "Notificações", icon: "♧", onClick: () => jumpTo("ocorrencias") },
-    { label: "Perfil e Acesso", icon: "♙", disabled: true },
-    { label: "Ajuda e Suporte", icon: "?", disabled: true },
+    { label: "Painel do Cliente", icon: <i className="fa-solid fa-house" aria-hidden="true" />, active: true, onClick: () => jumpTo("painel") },
+    { label: "Minhas Ocorrências", icon: <i className="fa-solid fa-clipboard-list" aria-hidden="true" />, onClick: () => navigate("/ocorrencias/nova") },
+    { label: "Meus Equipamentos", icon: <i className="fa-solid fa-elevator" aria-hidden="true" />, onClick: () => jumpTo("equipamento") },
+    { label: "Contratos", icon: <i className="fa-solid fa-file-contract" aria-hidden="true" />, onClick: () => jumpTo("equipamento") },
+    { label: "Documentos", icon: <i className="fa-solid fa-file-lines" aria-hidden="true" />, disabled: true },
+    { label: "Notificações", icon: <i className="fa-solid fa-bell" aria-hidden="true" />, onClick: () => jumpTo("ocorrencias") },
+    { label: "Perfil e Acesso", icon: <i className="fa-solid fa-user" aria-hidden="true" />, disabled: true },
+    { label: "Ajuda e Suporte", icon: <i className="fa-solid fa-circle-question" aria-hidden="true" />, disabled: true },
   ];
  
 
@@ -129,7 +129,7 @@ export default function ClienteDashboard({ usuario }) {
           <DashboardColumn>
             <SummaryGrid label="Resumo da conta">
               <SummaryCard
-                icon="✧"
+                icon={<i className="fa-solid fa-circle-exclamation" aria-hidden="true" />}
                 title="Ocorrências abertas"
                 value={occurrences.filter(occurrence => getGroup(occurrence.status) === "abertas").length}
                 action="Ver todas"
@@ -138,7 +138,7 @@ export default function ClienteDashboard({ usuario }) {
                 onClick={() => setSelectedTab("abertas")}
               />
               <SummaryCard
-                icon="◷"
+                icon={<i className="fa-solid fa-clock" aria-hidden="true" />}
                 title="Em atendimento"
                 value={occurrences.filter(occurrence => getGroup(occurrence.status) === "atendimento").length}
                 action="Ver todas"
@@ -147,7 +147,7 @@ export default function ClienteDashboard({ usuario }) {
                 onClick={() => setSelectedTab("atendimento")}
               />
               <SummaryCard
-                icon="✓"
+                icon={<i className="fa-solid fa-check" aria-hidden="true" />}
                 title="Concluídas"
                 value={occurrences.filter(occurrence => getGroup(occurrence.status) === "concluidas").length}
                 action="Ver todas"
@@ -156,7 +156,7 @@ export default function ClienteDashboard({ usuario }) {
                 onClick={() => setSelectedTab("concluidas")}
               />
               <SummaryCard
-                icon="▤"
+                icon={<i className="fa-solid fa-elevator" aria-hidden="true" />}
                 title="Equipamentos ativos"
                 value={activeContracts.length}
                 action="Ver equipamentos"

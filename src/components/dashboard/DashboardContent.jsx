@@ -136,14 +136,14 @@ const OccurrenceDetails = styled.div`
   small { color: #647084; font-size: 0.63rem; }
 `;
 
-const Arrow = styled.span`color: #818b9b; font-size: 1.4rem;`;
+const Arrow = styled.span`color: #818b9b; font-size: 0.85rem;`;
 
 export function OccurrenceCard({ group, status, children }) {
   return (
     <OccurrenceCardContainer $group={group}>
       {children}
       <StatusBadge $group={group}>{status}</StatusBadge>
-      <Arrow aria-hidden="true">›</Arrow>
+      <Arrow aria-hidden="true"><i className="fa-solid fa-chevron-right" /></Arrow>
     </OccurrenceCardContainer>
   );
 }

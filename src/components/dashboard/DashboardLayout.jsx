@@ -89,7 +89,7 @@ const NavButton = styled.button`
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 
   &:hover:not(:disabled) { background: #173b68; }
-  & > span:first-child { width: 1.25rem; text-align: center; font-size: 1rem; }
+  & > span:first-child { width: 1.25rem; text-align: center; font-size: 0.9rem; }
   & > span:last-child:not(:first-child) { margin-left: auto; }
 
   @media (max-width: 760px) {
@@ -168,7 +168,7 @@ export function DashboardShell({
       <Header>
         <img src={logo} alt="SmartLift" />
         <Profile>
-          <span aria-label="Notificações">♧</span>
+          <span aria-label="Notificações"><i className="fa-solid fa-bell" aria-hidden="true" /></span>
           <Avatar aria-hidden="true">{initials}</Avatar>
           <div><strong>{user.nome} {user.sobrenome}</strong><small>{role}</small></div>
         </Profile>

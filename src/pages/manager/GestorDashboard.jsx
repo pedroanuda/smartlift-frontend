@@ -924,30 +924,30 @@ export default function GestorDashboard({ usuario }) {
   const navegacao = [
     {
       label: "Visão geral",
-      icon: "▦",
+      icon: <i className="fa-solid fa-chart-pie" aria-hidden="true" />,
       active: true,
     },
     {
       label: "Todas as ocorrências",
-      icon: "▤",
+      icon: <i className="fa-solid fa-clipboard-list" aria-hidden="true" />,
       badge: totais.total,
       onClick: () => setFiltro("todas"),
     },
     {
       label: "Pendentes",
-      icon: "◷",
+      icon: <i className="fa-solid fa-clock" aria-hidden="true" />,
       badge: totais.pendentes,
       onClick: () => setFiltro("pendentes"),
     },
     {
       label: "Em atendimento",
-      icon: "⚙",
+      icon: <i className="fa-solid fa-gear" aria-hidden="true" />,
       badge: totais.atendimento,
       onClick: () => setFiltro("atendimento"),
     },
     {
       label: "Concluídas",
-      icon: "✓",
+      icon: <i className="fa-solid fa-circle-check" aria-hidden="true" />,
       badge: totais.concluidas,
       onClick: () => setFiltro("concluidas"),
     },
@@ -975,7 +975,8 @@ export default function GestorDashboard({ usuario }) {
           />
 
           <DemoAviso>
-            ● Ambiente demonstrativo: dados fictícios e novos cadastros reais.
+            <i className="fa-solid fa-circle-info" aria-hidden="true" />
+            Ambiente demonstrativo: dados fictícios e novos cadastros reais.
           </DemoAviso>
 
           {/* INDICADORES */}
