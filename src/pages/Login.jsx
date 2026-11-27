@@ -19,24 +19,17 @@ const StyledMain = styled.main`
   & > section > span {
     text-transform: uppercase;
     background-color: var(--color-primary-strong);
-    color: var(--color-on-primary);
+    color: var(--color-on-primary); 
     padding: 0.5rem 1rem;
     border-radius: 5px;
     font-weight: 500;
     letter-spacing: 0.1rem;
 
     margin-top: 2rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: .5rem;
   }
-  & > section > div {
-    display: flex;
-    gap: 1.5rem;
-  }
-  & > section > h2 {
-    font-family: var(--font-heading);
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-  }
+  & > section > div { display: flex; gap: 1.5rem; }
+  & > section > h2 { font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 0.5rem;}
 `;
 
 const StyledCard = styled.div`
@@ -52,15 +45,13 @@ const StyledCard = styled.div`
   text-align: center;
   color: var(--color-on-primary);
 
-  & > h3 {
-    text-transform: uppercase;
-  }
-  & > button {
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-    border: 1px solid var(--color-on-primary);
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
+  & > h3 { text-transform: uppercase; }
+  & > button { 
+    background-color: var(--color-primary); 
+    color: var(--color-on-primary); 
+    border: 1px solid var(--color-on-primary); 
+    padding: 0.5rem 1rem; 
+    border-radius: 10px; 
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -78,26 +69,14 @@ function AccessCard({ role, description, onClick }) {
         Acessar <i className="fa-solid fa-arrow-right" aria-hidden="true" />
       </button>
     </StyledCard>
-  );
+  )
 }
 
 export default function Login() {
   const accesses = [
-    {
-      role: "Cliente",
-      description: "Acompanhe chamados e histórico de atendimentos",
-      id: 1,
-    },
-    {
-      role: "Gestor",
-      description: "Gerencie contratos, equipes e indicadores",
-      id: 2,
-    },
-    {
-      role: "Técnico",
-      description: "Ordens de serviço e agenda de manutenções",
-      id: 3,
-    },
+    {role: 'Cliente', description: 'Acompanhe chamados e histórico de atendimentos', id: 1},
+    {role: 'Gestor', description: 'Gerencie contratos, equipes e indicadores', id: 2},
+    {role: 'Técnico', description: 'Ordens de serviço e agenda de manutenções', id: 3}
   ];
 
   const location = useLocation();
@@ -105,13 +84,10 @@ export default function Login() {
   const fromExists = !!location.state?.from?.pathname;
   const from = location.state?.from?.pathname || "/";
 
-  const handleAccess = React.useCallback(
-    (accessId) => {
-      UsuarioService.login(accessId);
-      navigate(from, { replace: fromExists });
-    },
-    [navigate, from, fromExists],
-  );
+  const handleAccess = React.useCallback((accessId) => {
+    UsuarioService.login(accessId);
+    navigate(from, { replace: fromExists });
+  }, [navigate, from, fromExists]);
 
   return (
     <>
@@ -123,17 +99,12 @@ export default function Login() {
           <p>Escolha o portal correspondente ao seu perfil</p>
           <div>
             {accesses.map((access, index) => (
-              <AccessCard
-                key={index}
-                role={access.role}
-                description={access.description}
-                onClick={() => handleAccess(access.id)}
-              />
+              <AccessCard key={index} role={access.role} description={access.description} onClick={() => handleAccess(access.id)}  />
             ))}
           </div>
         </section>
       </StyledMain>
       <Footer />
     </>
-  );
+  )
 }

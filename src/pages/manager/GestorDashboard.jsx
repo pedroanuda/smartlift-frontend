@@ -1,5 +1,5 @@
-
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useOutletContext } from "react-router";
 import styled from "styled-components";
 
 import {
@@ -7,9 +7,11 @@ import {
   DashboardMain,
   DashboardIntro,
 } from "../../components/dashboard/DashboardLayout";
+import NotificationsCenter from "../../components/dashboard/NotificationsCenter";
 
 import OcorrenciaService from "../../services/OcorrenciaService";
 import UsuarioService from "../../services/UsuarioService";
+import NotificacaoService from "../../services/NotificacaoService";
 
 const CORES = {
   azul: "#2861c8",
@@ -239,7 +241,8 @@ const TabelaScroll = styled.div`
     font-size: 0.69rem;
   }
 
-  th, td {
+  th,
+  td {
     padding: 0.8rem 1rem;
     border-bottom: 1px solid #edf0f4;
   }
@@ -296,7 +299,7 @@ function dataDemonstrativa(mesesAtras, dia = 10) {
     hoje.getFullYear(),
     hoje.getMonth() - mesesAtras,
     dia,
-    12
+    12,
   ).toISOString();
 }
 
@@ -483,9 +486,7 @@ function obterData(ocorrencia) {
 function formatarData(ocorrencia) {
   const data = obterData(ocorrencia);
 
-  return data
-    ? data.toLocaleDateString("pt-BR")
-    : "Data não informada";
+  return data ? data.toLocaleDateString("pt-BR") : "Data não informada";
 }
 
 function normalizarOcorrencia(ocorrencia) {
@@ -509,9 +510,7 @@ function normalizarOcorrencia(ocorrencia) {
       "Equipamento não identificado",
 
     local: localizacao
-      ? [localizacao.cidade, localizacao.estado]
-          .filter(Boolean)
-          .join(" - ")
+      ? [localizacao.cidade, localizacao.estado].filter(Boolean).join(" - ")
       : "Local não informado",
 
     origem: "real",
@@ -522,24 +521,20 @@ function calcularDadosMensais(ocorrencias) {
   const hoje = new Date();
 
   const meses = Array.from({ length: 6 }, (_, index) => {
-    const data = new Date(
-      hoje.getFullYear(),
-      hoje.getMonth() - (5 - index),
-      1
-    );
+    const data = new Date(hoje.getFullYear(), hoje.getMonth() - (5 - index), 1);
 
     return {
       chave: `${data.getFullYear()}-${data.getMonth()}`,
-      nome: data.toLocaleDateString("pt-BR", {
-        month: "short",
-      }).replace(".", ""),
+      nome: data
+        .toLocaleDateString("pt-BR", {
+          month: "short",
+        })
+        .replace(".", ""),
       total: 0,
     };
   });
 
-  const mapa = new Map(
-    meses.map((mes) => [mes.chave, mes])
-  );
+  const mapa = new Map(meses.map((mes) => [mes.chave, mes]));
 
   ocorrencias.forEach((ocorrencia) => {
     const data = obterData(ocorrencia);
@@ -562,10 +557,7 @@ function calcularDadosMensais(ocorrencias) {
 // --------------------------------------------------
 
 function GraficoMensal({ dados }) {
-  const maiorValor = Math.max(
-    1,
-    ...dados.map((item) => item.total)
-  );
+  const maiorValor = Math.max(1, ...dados.map((item) => item.total));
 
   const alturaGrafico = 135;
   const larguraBarra = 30;
@@ -599,21 +591,16 @@ function GraficoMensal({ dados }) {
                 fontSize="9"
                 textAnchor="end"
               >
-                {Math.round(
-                  maiorValor * (3 - indice) / 3
-                )}
+                {Math.round((maiorValor * (3 - indice)) / 3)}
               </text>
             </g>
           );
         })}
 
         {dados.map((item, indice) => {
-          const altura =
-            (item.total / maiorValor) * alturaGrafico;
+          const altura = (item.total / maiorValor) * alturaGrafico;
 
-          const x = 48 + indice * (
-            larguraBarra + espacamento
-          );
+          const x = 48 + indice * (larguraBarra + espacamento);
 
           const y = 145 - altura;
 
@@ -674,8 +661,7 @@ function GraficoCategorias({ ocorrencias }) {
   const categorias = ocorrencias.reduce((acumulado, item) => {
     const categoria = item.categoria || "Outros";
 
-    acumulado[categoria] =
-      (acumulado[categoria] || 0) + 1;
+    acumulado[categoria] = (acumulado[categoria] || 0) + 1;
 
     return acumulado;
   }, {});
@@ -684,10 +670,7 @@ function GraficoCategorias({ ocorrencias }) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6);
 
-  const total = linhas.reduce(
-    (soma, item) => soma + item[1],
-    0
-  );
+  const total = linhas.reduce((soma, item) => soma + item[1], 0);
 
   const circunferencia = 2 * Math.PI * 43;
 
@@ -712,9 +695,7 @@ function GraficoCategorias({ ocorrencias }) {
 
           {linhas.map(([categoria, quantidade], indice) => {
             const comprimento =
-              total > 0
-                ? quantidade / total * circunferencia
-                : 0;
+              total > 0 ? (quantidade / total) * circunferencia : 0;
 
             const offsetAtual = deslocamento;
             deslocamento += comprimento;
@@ -746,13 +727,7 @@ function GraficoCategorias({ ocorrencias }) {
             {ocorrencias.length}
           </text>
 
-          <text
-            x="75"
-            y="84"
-            textAnchor="middle"
-            fontSize="9"
-            fill="#7c899a"
-          >
+          <text x="75" y="84" textAnchor="middle" fontSize="9" fill="#7c899a">
             registros
           </text>
         </svg>
@@ -770,9 +745,7 @@ function GraficoCategorias({ ocorrencias }) {
           </ItemLegenda>
         ))}
 
-        {linhas.length === 0 && (
-          <Vazio>Sem dados para exibir.</Vazio>
-        )}
+        {linhas.length === 0 && <Vazio>Sem dados para exibir.</Vazio>}
       </Legenda>
     </>
   );
@@ -791,11 +764,25 @@ function buscarOcorrenciasNormalizadas() {
   }
 }
 
-export default function GestorDashboard({ usuario }) {
+export default function GestorDashboard({
+  usuario: usuarioProp,
+  secao = "painel",
+}) {
+  const outletContext = useOutletContext() || {};
+  const usuario =
+    usuarioProp ||
+    outletContext.usuario ||
+    UsuarioService.buscarUsuarioLogado();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [ocorrenciasReais, setOcorrenciasReais] = useState(
-    buscarOcorrenciasNormalizadas
+    buscarOcorrenciasNormalizadas,
   );
-  const [filtro, setFiltro] = useState("todas");
+  const [filtro, setFiltro] = useState(() => location.state?.filtro || "todas");
+  const [notificacoesLidas, setNotificacoesLidas] = useState(() =>
+    NotificacaoService.buscarIdsLidas(usuario?.id),
+  );
 
   // Busca os registros do sistema.
   const carregarOcorrencias = useCallback(() => {
@@ -806,6 +793,14 @@ export default function GestorDashboard({ usuario }) {
   useEffect(() => {
     return OcorrenciaService.inscreverAtualizacoes(carregarOcorrencias);
   }, [carregarOcorrencias]);
+
+  useEffect(() => {
+    const carregarLidas = () => {
+      setNotificacoesLidas(NotificacaoService.buscarIdsLidas(usuario?.id));
+    };
+
+    return NotificacaoService.inscreverAtualizacoes(carregarLidas);
+  }, [usuario?.id]);
 
   // Junta os dados fictícios com os registros reais.
   // IDs iguais são considerados um único registro.
@@ -845,7 +840,7 @@ export default function GestorDashboard({ usuario }) {
         pendentes: 0,
         atendimento: 0,
         concluidas: 0,
-      }
+      },
     );
   }, [ocorrencias]);
 
@@ -854,9 +849,8 @@ export default function GestorDashboard({ usuario }) {
     return ["Alta", "Média", "Baixa"].map((nome) => ({
       nome,
 
-      total: ocorrencias.filter(
-        (item) => (item.prioridade || "Média") === nome
-      ).length,
+      total: ocorrencias.filter((item) => (item.prioridade || "Média") === nome)
+        .length,
 
       cor:
         nome === "Alta"
@@ -870,7 +864,7 @@ export default function GestorDashboard({ usuario }) {
   // Calcula os dados do gráfico mensal.
   const dadosMensais = useMemo(
     () => calcularDadosMensais(ocorrencias),
-    [ocorrencias]
+    [ocorrencias],
   );
 
   // Aplica o filtro da tabela.
@@ -878,83 +872,134 @@ export default function GestorDashboard({ usuario }) {
     const resultado =
       filtro === "todas"
         ? ocorrencias
-        : ocorrencias.filter(
-            (item) => grupoStatus(item.status) === filtro
-          );
+        : ocorrencias.filter((item) => grupoStatus(item.status) === filtro);
 
-    return resultado.slice(0, 10);
-  }, [ocorrencias, filtro]);
+    return secao === "ocorrencias" ? resultado : resultado.slice(0, 6);
+  }, [ocorrencias, filtro, secao]);
+
+  const irParaOcorrencias = useCallback(
+    (novoFiltro = "todas") => {
+      setFiltro(novoFiltro);
+      navigate("/gestor/ocorrencias", { state: { filtro: novoFiltro } });
+    },
+    [navigate],
+  );
+
+  const notificacoes = useMemo(() => {
+    const lista = [];
+    const criticasPendentes = ocorrencias.filter(
+      (item) =>
+        (item.prioridade || "Média") === "Alta" &&
+        grupoStatus(item.status) !== "concluidas",
+    ).length;
+
+    if (criticasPendentes > 0) {
+      const id = `gestor-criticas-${criticasPendentes}`;
+      lista.push({
+        id,
+        title: `${criticasPendentes} ocorrência(s) de alta prioridade`,
+        description:
+          "Ocorrências críticas aguardando acompanhamento gerencial.",
+        actionLabel: "Ver pendentes",
+        accent: CORES.vermelho,
+        bg: "#fdeeee",
+        icon: (
+          <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />
+        ),
+        unread: !notificacoesLidas.includes(id),
+        onClick: () => irParaOcorrencias("pendentes"),
+      });
+    }
+
+    if (totais.pendentes > 0) {
+      const id = `gestor-pendentes-${totais.pendentes}`;
+      lista.push({
+        id,
+        title: `${totais.pendentes} ocorrência(s) pendente(s)`,
+        description: "Aguardando atribuição ou início do atendimento.",
+        actionLabel: "Ver fila pendente",
+        accent: CORES.amarelo,
+        bg: "#fff4df",
+        icon: <i className="fa-solid fa-clock" aria-hidden="true" />,
+        unread: !notificacoesLidas.includes(id),
+        onClick: () => irParaOcorrencias("pendentes"),
+      });
+    }
+
+    if (totais.atendimento > 0) {
+      const id = `gestor-atendimento-${totais.atendimento}`;
+      lista.push({
+        id,
+        title: `${totais.atendimento} em atendimento`,
+        description: "Atendimentos atualmente em execução pela equipe técnica.",
+        actionLabel: "Ver em atendimento",
+        accent: CORES.azul,
+        bg: "#eaf0ff",
+        icon: <i className="fa-solid fa-gear" aria-hidden="true" />,
+        unread: !notificacoesLidas.includes(id),
+        onClick: () => irParaOcorrencias("atendimento"),
+      });
+    }
+
+    return lista;
+  }, [ocorrencias, totais, notificacoesLidas, irParaOcorrencias]);
+
+  const notificacoesNaoLidas = notificacoes.filter((item) => item.unread);
 
   const navegacao = [
     {
       label: "Visão geral",
       icon: <i className="fa-solid fa-chart-pie" aria-hidden="true" />,
-      active: true,
+      active: location.pathname === "/",
+      onClick: () => navigate("/"),
     },
     {
-      label: "Todas as ocorrências",
+      label: "Ocorrências",
       icon: <i className="fa-solid fa-clipboard-list" aria-hidden="true" />,
+      active: location.pathname === "/gestor/ocorrencias",
       badge: totais.total,
-      onClick: () => setFiltro("todas"),
+      onClick: () => irParaOcorrencias("todas"),
     },
     {
-      label: "Pendentes",
-      icon: <i className="fa-solid fa-clock" aria-hidden="true" />,
-      badge: totais.pendentes,
-      onClick: () => setFiltro("pendentes"),
+      label: "Indicadores",
+      icon: <i className="fa-solid fa-chart-column" aria-hidden="true" />,
+      active: location.pathname === "/gestor/indicadores",
+      onClick: () => navigate("/gestor/indicadores"),
     },
     {
-      label: "Em atendimento",
-      icon: <i className="fa-solid fa-gear" aria-hidden="true" />,
-      badge: totais.atendimento,
-      onClick: () => setFiltro("atendimento"),
-    },
-    {
-      label: "Concluídas",
-      icon: <i className="fa-solid fa-circle-check" aria-hidden="true" />,
-      badge: totais.concluidas,
-      onClick: () => setFiltro("concluidas"),
+      label: "Notificações",
+      icon: <i className="fa-solid fa-bell" aria-hidden="true" />,
+      active: location.pathname === "/gestor/notificacoes",
+      badge:
+        notificacoesNaoLidas.length > 0
+          ? String(notificacoesNaoLidas.length)
+          : undefined,
+      onClick: () => navigate("/gestor/notificacoes"),
     },
   ];
 
-  const notificacoes = useMemo(() => {
-    const lista = [];
-    const criticasPendentes = ocorrencias.filter(
-      (item) => (item.prioridade || "Média") === "Alta" && grupoStatus(item.status) !== "concluidas"
-    ).length;
+  const introPorSecao = {
+    painel: {
+      title: `Olá, ${usuario.nome}`,
+      subtitle: "Visão gerencial das ocorrências e indicadores operacionais.",
+    },
+    ocorrencias: {
+      title: "Gestão de ocorrências",
+      subtitle:
+        "Visualize e filtre todas as ocorrências registradas na carteira.",
+    },
+    indicadores: {
+      title: "Indicadores operacionais",
+      subtitle:
+        "Análise de volume mensal, categorias, prioridades e situação da carteira.",
+    },
+    notificacoes: {
+      title: "Notificações gerenciais",
+      subtitle: "Acompanhe alertas de criticidade e status das operações.",
+    },
+  };
 
-    if (criticasPendentes > 0) {
-      lista.push({
-        id: "gestor-criticas",
-        title: `${criticasPendentes} ocorrência(s) de alta prioridade`,
-        description: "Clique para filtrar as ocorrências pendentes na tabela.",
-        unread: true,
-        onClick: () => setFiltro("pendentes"),
-      });
-    }
-
-    if (totais.pendentes > 0) {
-      lista.push({
-        id: "gestor-pendentes",
-        title: `${totais.pendentes} ocorrência(s) pendente(s)`,
-        description: "Aguardando atribuição ou início do atendimento.",
-        unread: true,
-        onClick: () => setFiltro("pendentes"),
-      });
-    }
-
-    if (totais.atendimento > 0) {
-      lista.push({
-        id: "gestor-atendimento",
-        title: `${totais.atendimento} em atendimento`,
-        description: "Atendimentos atualmente em execução pela equipe técnica.",
-        unread: false,
-        onClick: () => setFiltro("atendimento"),
-      });
-    }
-
-    return lista;
-  }, [ocorrencias, totais]);
+  const intro = introPorSecao[secao] || introPorSecao.painel;
 
   return (
     <DashboardShell
@@ -965,232 +1010,233 @@ export default function GestorDashboard({ usuario }) {
       notifications={notificacoes}
       helpCard={{
         title: "Central SmartLift",
-        description:
-          "Acompanhe solicitações e priorize os atendimentos.",
+        description: "Acompanhe solicitações e priorize os atendimentos.",
         href: "mailto:suporte@smartlift.com.br",
         action: "Contatar suporte",
       }}
     >
       <DashboardMain>
         <Container>
-          <DashboardIntro
-            title={`Olá, ${usuario.nome}`}
-            subtitle="Visão gerencial das ocorrências e indicadores operacionais."
-          />
+          <DashboardIntro title={intro.title} subtitle={intro.subtitle} />
 
-          <DemoAviso>
-            <i className="fa-solid fa-circle-info" aria-hidden="true" />
-            Ambiente demonstrativo: dados fictícios e novos cadastros reais.
-          </DemoAviso>
+          {secao !== "notificacoes" && (
+            <DemoAviso>
+              <i className="fa-solid fa-circle-info" aria-hidden="true" />
+              Ambiente demonstrativo: dados fictícios e novos cadastros reais.
+            </DemoAviso>
+          )}
 
           {/* INDICADORES */}
-          <CardsGrid>
-            <Indicador>
-              <small>Total de ocorrências</small>
-              <strong>{totais.total}</strong>
-              <span>Todos os registros</span>
-            </Indicador>
+          {(secao === "painel" || secao === "indicadores") && (
+            <CardsGrid>
+              <Indicador>
+                <small>Total de ocorrências</small>
+                <strong>{totais.total}</strong>
+                <span>Todos os registros</span>
+              </Indicador>
 
-            <Indicador>
-              <small>Pendentes</small>
-              <strong>{totais.pendentes}</strong>
-              <span>Aguardando atendimento</span>
-            </Indicador>
+              <Indicador>
+                <small>Pendentes</small>
+                <strong>{totais.pendentes}</strong>
+                <span>Aguardando atendimento</span>
+              </Indicador>
 
-            <Indicador>
-              <small>Em atendimento</small>
-              <strong>{totais.atendimento}</strong>
-              <span>Em execução pela equipe</span>
-            </Indicador>
+              <Indicador>
+                <small>Em atendimento</small>
+                <strong>{totais.atendimento}</strong>
+                <span>Em execução pela equipe</span>
+              </Indicador>
 
-            <Indicador>
-              <small>Concluídas</small>
-              <strong>{totais.concluidas}</strong>
-              <span>Atendimentos finalizados</span>
-            </Indicador>
-          </CardsGrid>
+              <Indicador>
+                <small>Concluídas</small>
+                <strong>{totais.concluidas}</strong>
+                <span>Atendimentos finalizados</span>
+              </Indicador>
+            </CardsGrid>
+          )}
 
           {/* GRÁFICOS */}
-          <GradeGraficos>
-            <Painel>
-              <h2>Volume de ocorrências</h2>
-              <p>
-                Cadastros por mês · últimos seis meses
-              </p>
+          {(secao === "painel" || secao === "indicadores") && (
+            <GradeGraficos>
+              <Painel>
+                <h2>Volume de ocorrências</h2>
+                <p>Cadastros por mês · últimos seis meses</p>
 
-              <GraficoMensal dados={dadosMensais} />
-            </Painel>
+                <GraficoMensal dados={dadosMensais} />
+              </Painel>
 
-            <Painel>
-              <h2>Ocorrências por categoria</h2>
-              <p>
-                Distribuição dos problemas registrados
-              </p>
+              <Painel>
+                <h2>Ocorrências por categoria</h2>
+                <p>Distribuição dos problemas registrados</p>
 
-              <GraficoCategorias
-                ocorrencias={ocorrencias}
-              />
-            </Painel>
-          </GradeGraficos>
+                <GraficoCategorias ocorrencias={ocorrencias} />
+              </Painel>
+            </GradeGraficos>
+          )}
 
           {/* PRIORIDADES E STATUS */}
-          <GradeGraficos>
-            <Painel>
-              <h2>Prioridade das ocorrências</h2>
-              <p>
-                Distribuição por nível de criticidade
-              </p>
+          {secao === "indicadores" && (
+            <GradeGraficos>
+              <Painel>
+                <h2>Prioridade das ocorrências</h2>
+                <p>Distribuição por nível de criticidade</p>
 
-              {prioridades.map((item) => (
-                <LinhaBarra key={item.nome}>
-                  <span>{item.nome}</span>
+                {prioridades.map((item) => (
+                  <LinhaBarra key={item.nome}>
+                    <span>{item.nome}</span>
 
-                  <BarraFundo>
-                    <BarraPreenchida
-                      $largura={
-                        totais.total
-                          ? (item.total / totais.total) * 100
-                          : 0
-                      }
-                      $cor={item.cor}
-                    />
-                  </BarraFundo>
+                    <BarraFundo>
+                      <BarraPreenchida
+                        $largura={
+                          totais.total ? (item.total / totais.total) * 100 : 0
+                        }
+                        $cor={item.cor}
+                      />
+                    </BarraFundo>
 
-                  <strong>{item.total}</strong>
-                </LinhaBarra>
-              ))}
-            </Painel>
+                    <strong>{item.total}</strong>
+                  </LinhaBarra>
+                ))}
+              </Painel>
 
-            <Painel>
-              <h2>Resumo operacional</h2>
-              <p>
-                Participação de cada situação na carteira
-              </p>
+              <Painel>
+                <h2>Resumo operacional</h2>
+                <p>Participação de cada situação na carteira</p>
 
-              {[
-                {
-                  nome: "Pendentes",
-                  total: totais.pendentes,
-                  cor: CORES.amarelo,
-                },
-                {
-                  nome: "Em atendimento",
-                  total: totais.atendimento,
-                  cor: CORES.azul,
-                },
-                {
-                  nome: "Concluídas",
-                  total: totais.concluidas,
-                  cor: CORES.verde,
-                },
-              ].map((item) => (
-                <LinhaBarra key={item.nome}>
-                  <span>{item.nome}</span>
+                {[
+                  {
+                    nome: "Pendentes",
+                    total: totais.pendentes,
+                    cor: CORES.amarelo,
+                  },
+                  {
+                    nome: "Em atendimento",
+                    total: totais.atendimento,
+                    cor: CORES.azul,
+                  },
+                  {
+                    nome: "Concluídas",
+                    total: totais.concluidas,
+                    cor: CORES.verde,
+                  },
+                ].map((item) => (
+                  <LinhaBarra key={item.nome}>
+                    <span>{item.nome}</span>
 
-                  <BarraFundo>
-                    <BarraPreenchida
-                      $largura={
-                        totais.total
-                          ? (item.total / totais.total) * 100
-                          : 0
-                      }
-                      $cor={item.cor}
-                    />
-                  </BarraFundo>
+                    <BarraFundo>
+                      <BarraPreenchida
+                        $largura={
+                          totais.total ? (item.total / totais.total) * 100 : 0
+                        }
+                        $cor={item.cor}
+                      />
+                    </BarraFundo>
 
-                  <strong>
-                    {totais.total
-                      ? Math.round(
-                          (item.total / totais.total) * 100
-                        )
-                      : 0}
-                    %
-                  </strong>
-                </LinhaBarra>
-              ))}
-            </Painel>
-          </GradeGraficos>
+                    <strong>
+                      {totais.total
+                        ? Math.round((item.total / totais.total) * 100)
+                        : 0}
+                      %
+                    </strong>
+                  </LinhaBarra>
+                ))}
+              </Painel>
+            </GradeGraficos>
+          )}
 
           {/* TABELA DE OCORRÊNCIAS */}
-          <TabelaPainel>
-            <TabelaCabecalho>
-              <h2>Ocorrências recentes</h2>
+          {(secao === "painel" || secao === "ocorrencias") && (
+            <TabelaPainel>
+              <TabelaCabecalho>
+                <h2>
+                  {secao === "ocorrencias"
+                    ? "Todas as ocorrências"
+                    : "Ocorrências recentes"}
+                </h2>
 
-              <select
-                aria-label="Filtrar ocorrências"
-                value={filtro}
-                onChange={(event) =>
-                  setFiltro(event.target.value)
-                }
-              >
-                <option value="todas">Todas</option>
-                <option value="pendentes">Pendentes</option>
-                <option value="atendimento">
-                  Em atendimento
-                </option>
-                <option value="concluidas">Concluídas</option>
-              </select>
-            </TabelaCabecalho>
+                <select
+                  aria-label="Filtrar ocorrências"
+                  value={filtro}
+                  onChange={(event) => setFiltro(event.target.value)}
+                >
+                  <option value="todas">Todas</option>
+                  <option value="pendentes">Pendentes</option>
+                  <option value="atendimento">Em atendimento</option>
+                  <option value="concluidas">Concluídas</option>
+                </select>
+              </TabelaCabecalho>
 
-            <TabelaScroll>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Código / Data</th>
-                    <th>Cliente / Equipamento</th>
-                    <th>Categoria</th>
-                    <th>Prioridade</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {ocorrenciasFiltradas.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <strong>#{item.id}</strong>
-                        <small>{formatarData(item)}</small>
-                      </td>
-
-                      <td>
-                        <strong>
-                          {item.cliente || "Cliente SmartLift"}
-                        </strong>
-
-                        <small>
-                          {item.equipamento || "Equipamento não identificado"}
-                          {" · "}
-                          {item.local || "Local não informado"}
-                        </small>
-                      </td>
-
-                      <td>{item.categoria || "Outros"}</td>
-
-                      <td>{item.prioridade || "Média"}</td>
-
-                      <td>
-                        <StatusBadge
-                          $grupo={grupoStatus(item.status)}
-                        >
-                          {item.status || "Pendente"}
-                        </StatusBadge>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {ocorrenciasFiltradas.length === 0 && (
+              <TabelaScroll>
+                <table>
+                  <thead>
                     <tr>
-                      <td colSpan="5">
-                        <Vazio>
-                          Nenhuma ocorrência encontrada.
-                        </Vazio>
-                      </td>
+                      <th>Código / Data</th>
+                      <th>Cliente / Equipamento</th>
+                      <th>Categoria</th>
+                      <th>Prioridade</th>
+                      <th>Status</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </TabelaScroll>
-          </TabelaPainel>
+                  </thead>
+
+                  <tbody>
+                    {ocorrenciasFiltradas.map((item) => (
+                      <tr key={item.id}>
+                        <td>
+                          <strong>#{item.id}</strong>
+                          <small>{formatarData(item)}</small>
+                        </td>
+
+                        <td>
+                          <strong>{item.cliente || "Cliente SmartLift"}</strong>
+
+                          <small>
+                            {item.equipamento || "Equipamento não identificado"}
+                            {" · "}
+                            {item.local || "Local não informado"}
+                          </small>
+                        </td>
+
+                        <td>{item.categoria || "Outros"}</td>
+
+                        <td>{item.prioridade || "Média"}</td>
+
+                        <td>
+                          <StatusBadge $grupo={grupoStatus(item.status)}>
+                            {item.status || "Pendente"}
+                          </StatusBadge>
+                        </td>
+                      </tr>
+                    ))}
+
+                    {ocorrenciasFiltradas.length === 0 && (
+                      <tr>
+                        <td colSpan="5">
+                          <Vazio>Nenhuma ocorrência encontrada.</Vazio>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </TabelaScroll>
+            </TabelaPainel>
+          )}
+
+          {secao === "notificacoes" && (
+            <NotificationsCenter
+              title="Central de notificações"
+              subtitle="Alertas de criticidade e acompanhamento operacional."
+              notifications={notificacoes}
+              onMarkRead={(id) =>
+                NotificacaoService.marcarComoLida(usuario?.id, id)
+              }
+              onMarkAllRead={() =>
+                NotificacaoService.marcarTodasComoLidas(
+                  usuario?.id,
+                  notificacoesNaoLidas.map((item) => item.id),
+                )
+              }
+            />
+          )}
         </Container>
       </DashboardMain>
     </DashboardShell>

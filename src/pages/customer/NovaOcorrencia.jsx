@@ -267,56 +267,56 @@ export default function NovaOcorrencia() {
     {
       label: "Painel do Cliente",
       icon: <i className="fa-solid fa-house" aria-hidden="true" />,
-      onClick: () => navigate("/")
+      active: location.pathname === "/",
+      onClick: () => navigate("/"),
     },
     {
       label: "Minhas Ocorrências",
       icon: <i className="fa-solid fa-clipboard-list" aria-hidden="true" />,
-      onClick: () => navigate("/")
+      active: location.pathname === "/cliente/ocorrencias",
+      onClick: () => navigate("/cliente/ocorrencias"),
     },
     {
-      label: "Cadastrar Ocorrência",
+      label: "Nova Ocorrência",
       icon: <i className="fa-solid fa-circle-plus" aria-hidden="true" />,
-      active: true
+      active: location.pathname === "/ocorrencias/nova",
+      onClick: () => navigate("/ocorrencias/nova"),
     },
     {
       label: "Meus Equipamentos",
       icon: <i className="fa-solid fa-elevator" aria-hidden="true" />,
-      onClick: () => navigate("/")
-    },
-    {
-      label: "Contratos",
-      icon: <i className="fa-solid fa-file-contract" aria-hidden="true" />,
-      onClick: () => navigate("/")
-    },
-    {
-      label: "Documentos",
-      icon: <i className="fa-solid fa-file-lines" aria-hidden="true" />,
-      disabled: true
+      active: location.pathname === "/cliente/equipamentos",
+      onClick: () => navigate("/cliente/equipamentos"),
     },
     {
       label: "Notificações",
       icon: <i className="fa-solid fa-bell" aria-hidden="true" />,
-      onClick: () => navigate("/")
+      active: location.pathname === "/cliente/notificacoes",
+      onClick: () => navigate("/cliente/notificacoes"),
+    },
+    {
+      label: "Documentos",
+      icon: <i className="fa-solid fa-file-lines" aria-hidden="true" />,
+      disabled: true,
     },
     {
       label: "Perfil e Acesso",
       icon: <i className="fa-solid fa-user" aria-hidden="true" />,
-      disabled: true
+      disabled: true,
     },
     {
       label: "Ajuda e Suporte",
       icon: <i className="fa-solid fa-circle-question" aria-hidden="true" />,
-      disabled: true
-    }
+      disabled: true,
+    },
   ];
 
   function handleChange(event) {
     const { name, value } = event.target;
 
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   }
 
@@ -325,7 +325,7 @@ export default function NovaOcorrencia() {
 
     const tamanhoMaximo = 5 * 1024 * 1024;
 
-    if (selecionados.some(file => file.size > tamanhoMaximo)) {
+    if (selecionados.some((file) => file.size > tamanhoMaximo)) {
       setErro(true);
       setMensagem("Cada arquivo deve ter no máximo 5 MB.");
       event.target.value = "";
@@ -348,7 +348,7 @@ export default function NovaOcorrencia() {
     ) {
       setErro(true);
       setMensagem(
-        "Preencha os campos obrigatórios. A descrição deve ter pelo menos 10 caracteres."
+        "Preencha os campos obrigatórios. A descrição deve ter pelo menos 10 caracteres.",
       );
       return;
     }
@@ -373,10 +373,7 @@ export default function NovaOcorrencia() {
 
         prioridade: form.prioridade,
         frequencia: form.frequencia,
-        horario:
-          form.frequencia === "horario"
-            ? form.horario
-            : null,
+        horario: form.frequencia === "horario" ? form.horario : null,
 
         atendimentos: [],
 
@@ -397,7 +394,7 @@ export default function NovaOcorrencia() {
 
       setErro(false);
       setMensagem(
-        `Ocorrência registrada com sucesso! Código: ${novaOcorrencia.id}`
+        `Ocorrência registrada com sucesso! Código: ${novaOcorrencia.id}`,
       );
 
       setForm({
@@ -420,13 +417,17 @@ export default function NovaOcorrencia() {
     }
   }
 
-  const ocorrenciasCliente = OcorrenciaService.buscarOcorrenciasPorClienteId(usuario.id);
+  const ocorrenciasCliente = OcorrenciaService.buscarOcorrenciasPorClienteId(
+    usuario.id,
+  );
 
   const notifications = ocorrenciasCliente.slice(0, 3).map((ocorrencia) => ({
     id: `ocorrencia-${ocorrencia.id}`,
     title: `${ocorrencia.categoria || "Ocorrência"} · ${ocorrencia.status}`,
     description: ocorrencia.descricao,
-    unread: !ocorrencia.status?.toLowerCase().includes("finaliz") && !ocorrencia.status?.toLowerCase().includes("conclu"),
+    unread:
+      !ocorrencia.status?.toLowerCase().includes("finaliz") &&
+      !ocorrencia.status?.toLowerCase().includes("conclu"),
     onClick: () => navigate("/"),
   }));
 
@@ -441,7 +442,7 @@ export default function NovaOcorrencia() {
         title: "Precisa de ajuda?",
         description: "Fale com a nossa central de atendimento 24h.",
         href: "mailto:suporte@smartlift.com.br",
-        action: "Abrir chamado"
+        action: "Abrir chamado",
       }}
     >
       <DashboardMain>
@@ -455,7 +456,6 @@ export default function NovaOcorrencia() {
 
           <form onSubmit={handleSubmit}>
             <Grid>
-
               <Field>
                 <label htmlFor="contratoId">
                   Equipamento <span className="required">*</span>
@@ -470,7 +470,7 @@ export default function NovaOcorrencia() {
                 >
                   <option value="">Selecione o equipamento</option>
 
-                  {contratosAtivos.map(contrato => (
+                  {contratosAtivos.map((contrato) => (
                     <option key={contrato.id} value={contrato.id}>
                       {contrato.produtoApelido}
                     </option>
@@ -486,17 +486,17 @@ export default function NovaOcorrencia() {
                 <Select
                   id="local"
                   value={form.contratoId}
-                  onChange={event =>
-                    setForm(prev => ({
+                  onChange={(event) =>
+                    setForm((prev) => ({
                       ...prev,
-                      contratoId: event.target.value
+                      contratoId: event.target.value,
                     }))
                   }
                   required
                 >
                   <option value="">Selecione o local</option>
 
-                  {contratosAtivos.map(contrato => (
+                  {contratosAtivos.map((contrato) => (
                     <option key={contrato.id} value={contrato.id}>
                       {contrato.localizacao?.apelido}
                     </option>
@@ -539,11 +539,9 @@ export default function NovaOcorrencia() {
                     {[
                       { value: "Baixa", color: "#69ca4c" },
                       { value: "Média", color: "#f28b20" },
-                      { value: "Alta", color: "#ff3535" }
-                    ].map(item => (
-                      <label
-                        key={item.value}                     >
-
+                      { value: "Alta", color: "#ff3535" },
+                    ].map((item) => (
+                      <label key={item.value}>
                         <input
                           type="radio"
                           name="prioridade"
@@ -619,13 +617,13 @@ export default function NovaOcorrencia() {
 
               {form.frequencia === "horario" && (
                 <input
-                type="time"
-                style={{
+                  type="time"
+                  style={{
                     height: "2.45rem",
                     border: "1px solid #d5d5d5",
                     padding: "0 0.8rem",
-                    width: "100%"
-                }}
+                    width: "100%",
+                  }}
                   name="horario"
                   value={form.horario}
                   onChange={handleChange}
@@ -639,20 +637,16 @@ export default function NovaOcorrencia() {
 
               <FileContainer>
                 Arraste e solte arquivos aqui ou clique para selecionar
-
                 <input
                   type="file"
                   multiple
                   accept="image/*,.pdf,.doc,.docx"
                   onChange={handleFiles}
                 />
-
                 {arquivos.length > 0 && (
                   <FileNames>
                     {arquivos.map((file, index) => (
-                      <div key={`${file.name}-${index}`}>
-                        {file.name}
-                      </div>
+                      <div key={`${file.name}-${index}`}>{file.name}</div>
                     ))}
                   </FileNames>
                 )}
@@ -666,10 +660,7 @@ export default function NovaOcorrencia() {
             )}
 
             <Buttons>
-              <CancelButton
-                type="button"
-                onClick={() => navigate("/")}
-              >
+              <CancelButton type="button" onClick={() => navigate("/")}>
                 Cancelar
               </CancelButton>
 
@@ -680,7 +671,6 @@ export default function NovaOcorrencia() {
                 {enviando ? "Enviando..." : "Enviar Ocorrência"}
               </SubmitButton>
             </Buttons>
-
           </form>
         </FormContainer>
       </DashboardMain>

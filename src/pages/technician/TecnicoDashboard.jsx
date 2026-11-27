@@ -1,7 +1,6 @@
-
-//import { useState } from "react";
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate, useOutletContext } from "react-router";
 import styled from "styled-components";
 
 import {
@@ -9,9 +8,11 @@ import {
   DashboardMain,
   DashboardIntro,
 } from "../../components/dashboard/DashboardLayout";
+import NotificationsCenter from "../../components/dashboard/NotificationsCenter";
 
 import OcorrenciaService from "../../services/OcorrenciaService";
 import NotificacaoService from "../../services/NotificacaoService";
+import UsuarioService from "../../services/UsuarioService";
 
 const PageContent = styled.div`
   display: grid;
@@ -82,6 +83,7 @@ const SectionHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-bottom: 1.2rem;
 
   h2 {
@@ -93,6 +95,22 @@ const SectionHeader = styled.div`
     margin-top: 0.3rem;
     color: #758196;
     font-size: 0.8rem;
+  }
+`;
+
+const LinkButton = styled.button`
+  border: 0;
+  background: transparent;
+  color: #1765b1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
@@ -114,6 +132,11 @@ const Tab = styled.button`
   font-weight: ${({ $active }) => ($active ? "700" : "500")};
   white-space: nowrap;
   cursor: pointer;
+`;
+
+const OccurrencesList = styled.div`
+  display: grid;
+  gap: 0.8rem;
 `;
 
 const OccurrenceCard = styled.button`
@@ -197,199 +220,50 @@ const EmptyMessage = styled.div`
   font-size: 0.85rem;
 `;
 
-const SupportText = styled.p`
-  color: #68758a;
-  font-size: 0.82rem;
-  line-height: 1.6;
-`;
-
-const NotificationHeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  flex-wrap: wrap;
-`;
-
-const UnreadPill = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: ${({ $hasUnread }) => ($hasUnread ? "#eef3fb" : "#e7f5e9")};
-  color: ${({ $hasUnread }) => ($hasUnread ? "#1765b1" : "#2f7d42")};
-`;
-
-const MarkAllReadButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.75rem;
-  border: 1px solid #d7e2f1;
-  border-radius: 8px;
-  background: #f7faff;
-  color: #1765b1;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.15s ease;
-
-  &:hover {
-    background: #eaf1fc;
-    border-color: #1765b1;
-  }
-`;
-
-const NotificationFilters = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-`;
-
-const FilterChip = styled.button`
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid ${({ $active }) => ($active ? "#1765b1" : "#e2e8f0")};
-  background: ${({ $active }) => ($active ? "#1765b1" : "#fff")};
-  color: ${({ $active }) => ($active ? "#fff" : "#58677c")};
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.15s ease;
-
-  &:hover {
-    border-color: #1765b1;
-  }
-`;
-
-const NotificationFeed = styled.div`
+const SupportGrid = styled.div`
   display: grid;
-  gap: 0.75rem;
-`;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
 
-const NotificationCard = styled.article`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
-  padding: 1rem;
-  border-radius: 10px;
-  border: 1px solid ${({ $unread }) => ($unread ? "#d4e3f7" : "#edf0f4")};
-  border-left: 4px solid ${({ $accent, $unread }) => ($unread ? $accent : "#cbd5e1")};
-  background: ${({ $unread }) => ($unread ? "#fafcff" : "#fff")};
-  transition: 0.2s ease;
-
-  @media (max-width: 600px) {
-    flex-direction: column;
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
   }
 `;
 
-const NotificationIcon = styled.div`
-  width: 2.35rem;
-  height: 2.35rem;
+const SupportCard = styled.div`
+  padding: 1.2rem;
   border-radius: 10px;
-  background: ${({ $bg }) => $bg};
-  color: ${({ $color }) => $color};
+  border: 1px solid #e8ecf2;
+  background: #fbfcfe;
   display: grid;
-  place-items: center;
-  font-size: 0.95rem;
-  flex-shrink: 0;
-`;
-
-const NotificationBody = styled.div`
-  flex: 1;
-  min-width: 0;
+  gap: 0.55rem;
 
   h3 {
     color: #102b50;
-    font-size: 0.88rem;
-    font-weight: 700;
+    font-size: 0.92rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  p {
-    margin-top: 0.25rem;
-    color: #607087;
-    font-size: 0.8rem;
-    line-height: 1.5;
-  }
-`;
-
-const NotificationTag = styled.span`
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  background: ${({ $unread }) => ($unread ? "#1765b1" : "#eef2f6")};
-  color: ${({ $unread }) => ($unread ? "#fff" : "#68758a")};
-`;
-
-const NotificationCardActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  flex-wrap: wrap;
-`;
-
-const CardActionButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.7rem;
-  border-radius: 7px;
-  border: 1px solid ${({ $primary }) => ($primary ? "#1765b1" : "#dce3ed")};
-  background: ${({ $primary }) => ($primary ? "#1765b1" : "#fff")};
-  color: ${({ $primary }) => ($primary ? "#fff" : "#4a5a71")};
-  font-size: 0.73rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.15s ease;
-
-  &:hover {
-    background: ${({ $primary }) => ($primary ? "#125291" : "#f4f7fb")};
-  }
-`;
-
-const NotificationEmptyState = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  padding: 2rem 1rem;
-  border-radius: 10px;
-  border: 1px dashed #d8e2ee;
-  background: #fbfcfe;
-  text-align: center;
-
-  i {
-    font-size: 1.6rem;
-    color: #398e4f;
-  }
-
-  strong {
-    color: #102b50;
-    font-size: 0.9rem;
   }
 
   p {
     color: #68758a;
     font-size: 0.8rem;
+    line-height: 1.55;
+  }
+
+  a {
+    justify-self: start;
+    margin-top: 0.3rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 7px;
+    background: #1765b1;
+    color: #fff;
+    font-size: 0.76rem;
+    font-weight: 600;
+    text-decoration: none;
   }
 `;
-
-function jumpTo(id) {
-  document.getElementById(id)?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-}
 
 function getGrupoStatus(status = "") {
   const normalizado = status.toLocaleLowerCase("pt-BR");
@@ -413,17 +287,20 @@ function getGrupoStatus(status = "") {
   return "Pendentes";
 }
 
-
-export default function TecnicoDashboard({ usuario }) {
+export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel" }) {
+  const outletContext = useOutletContext() || {};
+  const usuario = usuarioProp || outletContext.usuario || UsuarioService.buscarUsuarioLogado();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [filtro, setFiltro] = useState("Pendentes");
-  const [filtroNotificacoes, setFiltroNotificacoes] = useState("todas");
+  const [filtro, setFiltro] = useState(
+    () => location.state?.filtro || "Pendentes"
+  );
   const [ocorrencias, setOcorrencias] = useState(() =>
     OcorrenciaService.buscarOcorrencias()
   );
   const [notificacoesLidas, setNotificacoesLidas] = useState(() =>
-    NotificacaoService.buscarIdsLidas(usuario.id)
+    NotificacaoService.buscarIdsLidas(usuario?.id)
   );
 
   useEffect(() => {
@@ -436,11 +313,11 @@ export default function TecnicoDashboard({ usuario }) {
 
   useEffect(() => {
     const carregarLidas = () => {
-      setNotificacoesLidas(NotificacaoService.buscarIdsLidas(usuario.id));
+      setNotificacoesLidas(NotificacaoService.buscarIdsLidas(usuario?.id));
     };
 
     return NotificacaoService.inscreverAtualizacoes(carregarLidas);
-  }, [usuario.id]);
+  }, [usuario?.id]);
 
   const ocorrenciasPendentes = ocorrencias.filter(
     (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Pendentes"
@@ -464,6 +341,11 @@ export default function TecnicoDashboard({ usuario }) {
     (ocorrencia) => getGrupoStatus(ocorrencia.status) === filtro
   );
 
+  const irParaOcorrencias = (filtroInicial = "Pendentes") => {
+    setFiltro(filtroInicial);
+    navigate("/tecnico/ocorrencias", { state: { filtro: filtroInicial } });
+  };
+
   const notificacoesBase = [
     ...(ocorrenciasSlaCritico.length > 0
       ? [{
@@ -475,10 +357,7 @@ export default function TecnicoDashboard({ usuario }) {
           bg: "#fdeeee",
           icon: <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />,
           unread: true,
-          onClick: () => {
-            setFiltro("Pendentes");
-            jumpTo("ocorrencias-tecnico");
-          },
+          onClick: () => irParaOcorrencias("Pendentes"),
         }]
       : []),
     ...(ocorrenciasPendentes.length > 0
@@ -491,10 +370,7 @@ export default function TecnicoDashboard({ usuario }) {
           bg: "#fff4df",
           icon: <i className="fa-solid fa-clock" aria-hidden="true" />,
           unread: true,
-          onClick: () => {
-            setFiltro("Pendentes");
-            jumpTo("ocorrencias-tecnico");
-          },
+          onClick: () => irParaOcorrencias("Pendentes"),
         }]
       : []),
     ...(ocorrenciasEmAndamento.length > 0
@@ -507,10 +383,7 @@ export default function TecnicoDashboard({ usuario }) {
           bg: "#eaf0ff",
           icon: <i className="fa-solid fa-wrench" aria-hidden="true" />,
           unread: true,
-          onClick: () => {
-            setFiltro("Em andamento");
-            jumpTo("ocorrencias-tecnico");
-          },
+          onClick: () => irParaOcorrencias("Em andamento"),
         }]
       : []),
   ];
@@ -521,16 +394,14 @@ export default function TecnicoDashboard({ usuario }) {
   }));
 
   const notificacoesNaoLidas = notifications.filter((item) => item.unread);
-  const notificacoesExibidas =
-    filtroNotificacoes === "nao-lidas" ? notificacoesNaoLidas : notifications;
 
   const marcarNotificacaoComoLida = (id) => {
-    NotificacaoService.marcarComoLida(usuario.id, id);
+    NotificacaoService.marcarComoLida(usuario?.id, id);
   };
 
   const marcarTodasNotificacoesComoLidas = () => {
     NotificacaoService.marcarTodasComoLidas(
-      usuario.id,
+      usuario?.id,
       notificacoesNaoLidas.map((item) => item.id)
     );
   };
@@ -539,22 +410,25 @@ export default function TecnicoDashboard({ usuario }) {
     {
       label: "Painel do Técnico",
       icon: <i className="fa-solid fa-house" aria-hidden="true" />,
-      active: true,
-      onClick: () => jumpTo("painel-tecnico"),
+      active: location.pathname === "/",
+      onClick: () => navigate("/"),
     },
     {
       label: "Ocorrências Atribuídas",
       icon: <i className="fa-solid fa-clipboard-list" aria-hidden="true" />,
-      onClick: () => jumpTo("ocorrencias-tecnico"),
+      active: location.pathname === "/tecnico/ocorrencias",
+      badge: atendimentosAtivos > 0 ? String(atendimentosAtivos) : undefined,
+      onClick: () => irParaOcorrencias("Pendentes"),
     },
     {
       label: "Notificações",
       icon: <i className="fa-solid fa-bell" aria-hidden="true" />,
+      active: location.pathname === "/tecnico/notificacoes",
       badge:
         notificacoesNaoLidas.length > 0
           ? String(notificacoesNaoLidas.length)
           : undefined,
-      onClick: () => jumpTo("notificacoes-tecnico"),
+      onClick: () => navigate("/tecnico/notificacoes"),
     },
     {
       label: "Perfil e Acesso",
@@ -564,7 +438,8 @@ export default function TecnicoDashboard({ usuario }) {
     {
       label: "Ajuda e Suporte",
       icon: <i className="fa-solid fa-circle-question" aria-hidden="true" />,
-      onClick: () => jumpTo("suporte-tecnico"),
+      active: location.pathname === "/tecnico/suporte",
+      onClick: () => navigate("/tecnico/suporte"),
     },
   ];
 
@@ -606,7 +481,7 @@ export default function TecnicoDashboard({ usuario }) {
     title: "Precisa de ajuda?",
     description: "Fale com a nossa central de atendimento 24h.",
     action: "Abrir chamado",
-    href: "#suporte-tecnico",
+    href: "mailto:suporte@smartlift.com.br",
   };
 
   const subtitle =
@@ -615,6 +490,68 @@ export default function TecnicoDashboard({ usuario }) {
       : atendimentosAtivos === 1
         ? "Você tem 1 atendimento ativo no momento. Confira suas atividades."
         : `Você tem ${atendimentosAtivos} atendimentos ativos no momento. Confira suas atividades.`;
+
+  const renderOccurrenceCard = (ocorrencia) => {
+    const atendimento = ocorrencia.atendimentos?.find(
+      (item) => item.tecnicoId === usuario.id
+    );
+
+    return (
+      <OccurrenceCard
+        key={ocorrencia.id}
+        type="button"
+        onClick={() => irParaOcorrencias(getGrupoStatus(ocorrencia.status))}
+      >
+        <OccurrenceTop>
+          <Priority>Prioridade {ocorrencia.prioridade || "Média"}</Priority>
+          <Status>{ocorrencia.status}</Status>
+        </OccurrenceTop>
+
+        <OccurrenceTitle>
+          {getOccurrenceTitle(ocorrencia).toUpperCase()}
+        </OccurrenceTitle>
+
+        <OccurrenceDescription>
+          {ocorrencia.descricao || ocorrencia.categoria}
+        </OccurrenceDescription>
+
+        <Metadata>
+          <span>
+            <i className="fa-solid fa-clock" aria-hidden="true" />
+            {atendimento?.dataHoraInicioAtendimento
+              ? `Iniciado em ${formatDate(atendimento.dataHoraInicioAtendimento)}`
+              : `Registrado em ${formatDate(ocorrencia.dataCriacao)}`}
+          </span>
+          <span>
+            <i className="fa-solid fa-location-dot" aria-hidden="true" />
+            {getLocation(ocorrencia)}
+          </span>
+          <span>#{ocorrencia.id}</span>
+        </Metadata>
+      </OccurrenceCard>
+    );
+  };
+
+  const introBySection = {
+    painel: {
+      title: `Olá, ${usuario.nome}!`,
+      subtitle,
+    },
+    ocorrencias: {
+      title: "Ocorrências atribuídas",
+      subtitle: "Gerencie e filtre todos os chamados sob sua responsabilidade.",
+    },
+    notificacoes: {
+      title: "Notificações",
+      subtitle: "Acompanhe alertas de SLA, fila pendente e atendimentos ativos.",
+    },
+    suporte: {
+      title: "Ajuda e suporte técnico",
+      subtitle: "Canais de apoio operacional e escalonamento em campo.",
+    },
+  };
+
+  const intro = introBySection[secao] || introBySection.painel;
 
   return (
     <DashboardShell
@@ -625,234 +562,150 @@ export default function TecnicoDashboard({ usuario }) {
       notifications={notifications}
       helpCard={helpCard}
     >
-      <DashboardMain id="painel-tecnico">
-        <DashboardIntro
-          title={`Olá, ${usuario.nome}!`}
-          subtitle={subtitle}
-        />
+      <DashboardMain>
+        <DashboardIntro title={intro.title} subtitle={intro.subtitle} />
 
         <PageContent>
-          <MetricsGrid>
-            {metrics.map((metric) => (
-              <MetricCard key={metric.label}>
-                <div className="metric-icon" style={{ color: metric.color }}>{metric.icon}</div>
-                <div className="metric-label">{metric.label}</div>
-                <div className="metric-number">{metric.number}</div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFiltro(metric.filter);
-                    jumpTo("ocorrencias-tecnico");
-                  }}
-                >
-                  Ver todas <i className="fa-solid fa-arrow-right" aria-hidden="true" />
-                </button>
-              </MetricCard>
-            ))}
-          </MetricsGrid>
-
-          <Section id="ocorrencias-tecnico">
-            <SectionHeader>
-              <div>
-                <h2>Ocorrências atribuídas</h2>
-                <p>Acompanhe os atendimentos sob sua responsabilidade.</p>
-              </div>
-            </SectionHeader>
-
-            <Tabs>
-              {[
-                { label: "Pendentes", count: ocorrenciasPendentes.length },
-                { label: "Em andamento", count: ocorrenciasEmAndamento.length },
-                { label: "Concluídas", count: ocorrenciasConcluidas.length },
-              ].map((tab) => (
-                <Tab
-                  key={tab.label}
-                  type="button"
-                  $active={filtro === tab.label}
-                  onClick={() => setFiltro(tab.label)}
-                >
-                  {tab.label} ({tab.count})
-                </Tab>
-              ))}
-            </Tabs>
-
-            {ocorrenciasExibidas.length > 0 ? (
-              ocorrenciasExibidas.map((ocorrencia) => {
-                const atendimento = ocorrencia.atendimentos?.find(
-                  (item) => item.tecnicoId === usuario.id
-                );
-
-                return (
-                  <OccurrenceCard
-                    key={ocorrencia.id}
-                    type="button"
-                    onClick={() =>
-                      navigate(`/ocorrencias/${ocorrencia.id}`)
-                    }
-                  >
-                    <OccurrenceTop>
-                      <Priority>Prioridade {ocorrencia.prioridade || "Média"}</Priority>
-                      <Status>{ocorrencia.status}</Status>
-                    </OccurrenceTop>
-
-                    <OccurrenceTitle>
-                      {getOccurrenceTitle(ocorrencia).toUpperCase()}
-                    </OccurrenceTitle>
-
-                    <OccurrenceDescription>
-                      {ocorrencia.descricao || ocorrencia.categoria}
-                    </OccurrenceDescription>
-
-                    <Metadata>
-                      <span>
-                        <i className="fa-solid fa-clock" aria-hidden="true" />
-                        {atendimento?.dataHoraInicioAtendimento
-                          ? `Iniciado em ${formatDate(atendimento.dataHoraInicioAtendimento)}`
-                          : `Registrado em ${formatDate(ocorrencia.dataCriacao)}`}
-                      </span>
-                      <span>
-                        <i className="fa-solid fa-location-dot" aria-hidden="true" />
-                        {getLocation(ocorrencia)}
-                      </span>
-                      <span>#{ocorrencia.id}</span>
-                    </Metadata>
-                  </OccurrenceCard>
-                );
-              })
-            ) : (
-              <EmptyMessage>
-                Nenhuma ocorrência encontrada nesta categoria.
-              </EmptyMessage>
-            )}
-          </Section>
-
-          <Section id="notificacoes-tecnico">
-            <SectionHeader>
-              <div>
-                <h2>Central de notificações</h2>
-                <p>Atualizações importantes sobre sua fila e atendimentos.</p>
-              </div>
-
-              <NotificationHeaderActions>
-                <UnreadPill $hasUnread={notificacoesNaoLidas.length > 0}>
-                  <i
-                    className={
-                      notificacoesNaoLidas.length > 0
-                        ? "fa-solid fa-bell"
-                        : "fa-solid fa-circle-check"
-                    }
-                    aria-hidden="true"
-                  />
-                  {notificacoesNaoLidas.length === 0
-                    ? "Tudo em dia"
-                    : notificacoesNaoLidas.length === 1
-                      ? "1 não lida"
-                      : `${notificacoesNaoLidas.length} não lidas`}
-                </UnreadPill>
-
-                {notificacoesNaoLidas.length > 0 && (
-                  <MarkAllReadButton
-                    type="button"
-                    onClick={marcarTodasNotificacoesComoLidas}
-                  >
-                    <i className="fa-solid fa-check-double" aria-hidden="true" />
-                    Marcar todas como lidas
-                  </MarkAllReadButton>
-                )}
-              </NotificationHeaderActions>
-            </SectionHeader>
-
-            <NotificationFilters>
-              <FilterChip
-                type="button"
-                $active={filtroNotificacoes === "todas"}
-                onClick={() => setFiltroNotificacoes("todas")}
-              >
-                Todas ({notifications.length})
-              </FilterChip>
-              <FilterChip
-                type="button"
-                $active={filtroNotificacoes === "nao-lidas"}
-                onClick={() => setFiltroNotificacoes("nao-lidas")}
-              >
-                Não lidas ({notificacoesNaoLidas.length})
-              </FilterChip>
-            </NotificationFilters>
-
-            {notificacoesExibidas.length > 0 ? (
-              <NotificationFeed>
-                {notificacoesExibidas.map((item) => (
-                  <NotificationCard
-                    key={item.id}
-                    $unread={item.unread}
-                    $accent={item.accent}
-                  >
-                    <NotificationIcon $bg={item.bg} $color={item.accent}>
-                      {item.icon}
-                    </NotificationIcon>
-
-                    <NotificationBody>
-                      <h3>
-                        {item.title}
-                        <NotificationTag $unread={item.unread}>
-                          {item.unread ? "Nova" : "Lida"}
-                        </NotificationTag>
-                      </h3>
-                      <p>{item.description}</p>
-
-                      <NotificationCardActions>
-                        <CardActionButton
-                          type="button"
-                          $primary
-                          onClick={() => {
-                            marcarNotificacaoComoLida(item.id);
-                            item.onClick?.();
-                          }}
-                        >
-                          {item.actionLabel}
-                          <i className="fa-solid fa-arrow-right" aria-hidden="true" />
-                        </CardActionButton>
-
-                        {item.unread && (
-                          <CardActionButton
-                            type="button"
-                            onClick={() => marcarNotificacaoComoLida(item.id)}
-                          >
-                            <i className="fa-solid fa-check" aria-hidden="true" />
-                            Marcar como lida
-                          </CardActionButton>
-                        )}
-                      </NotificationCardActions>
-                    </NotificationBody>
-                  </NotificationCard>
+          {secao === "painel" && (
+            <>
+              <MetricsGrid>
+                {metrics.map((metric) => (
+                  <MetricCard key={metric.label}>
+                    <div className="metric-icon" style={{ color: metric.color }}>
+                      {metric.icon}
+                    </div>
+                    <div className="metric-label">{metric.label}</div>
+                    <div className="metric-number">{metric.number}</div>
+                    <button
+                      type="button"
+                      onClick={() => irParaOcorrencias(metric.filter)}
+                    >
+                      Ver todas <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                    </button>
+                  </MetricCard>
                 ))}
-              </NotificationFeed>
-            ) : (
-              <NotificationEmptyState>
-                <i className="fa-solid fa-circle-check" aria-hidden="true" />
-                <strong>Tudo em dia!</strong>
-                <p>
-                  {filtroNotificacoes === "nao-lidas"
-                    ? "Você já leu todas as suas notificações pendentes."
-                    : "Não há notificações registradas no momento."}
-                </p>
-              </NotificationEmptyState>
-            )}
-          </Section>
+              </MetricsGrid>
 
-          <Section id="suporte-tecnico">
-            <SectionHeader>
-              <div>
-                <h2>Ajuda e suporte</h2>
-                <p>Precisa de auxílio durante um atendimento?</p>
-              </div>
-            </SectionHeader>
+              <Section>
+                <SectionHeader>
+                  <div>
+                    <h2>Próximos atendimentos</h2>
+                    <p>Resumo rápido das ocorrências pendentes e em andamento.</p>
+                  </div>
+                  <LinkButton type="button" onClick={() => irParaOcorrencias("Pendentes")}>
+                    Ver todas as ocorrências <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                  </LinkButton>
+                </SectionHeader>
 
-            <SupportText>
-              Entre em contato com a central de atendimento SmartLift para
-              receber suporte.
-            </SupportText>
-          </Section>
+                {[...ocorrenciasPendentes, ...ocorrenciasEmAndamento].length > 0 ? (
+                  <OccurrencesList>
+                    {[...ocorrenciasPendentes, ...ocorrenciasEmAndamento]
+                      .slice(0, 3)
+                      .map(renderOccurrenceCard)}
+                  </OccurrencesList>
+                ) : (
+                  <EmptyMessage>
+                    Nenhum atendimento ativo no momento.
+                  </EmptyMessage>
+                )}
+              </Section>
+            </>
+          )}
+
+          {secao === "ocorrencias" && (
+            <Section>
+              <SectionHeader>
+                <div>
+                  <h2>Fila de ocorrências</h2>
+                  <p>Filtre por etapa para acompanhar seus atendimentos.</p>
+                </div>
+              </SectionHeader>
+
+              <Tabs>
+                {[
+                  { label: "Pendentes", count: ocorrenciasPendentes.length },
+                  { label: "Em andamento", count: ocorrenciasEmAndamento.length },
+                  { label: "Concluídas", count: ocorrenciasConcluidas.length },
+                ].map((tab) => (
+                  <Tab
+                    key={tab.label}
+                    type="button"
+                    $active={filtro === tab.label}
+                    onClick={() => setFiltro(tab.label)}
+                  >
+                    {tab.label} ({tab.count})
+                  </Tab>
+                ))}
+              </Tabs>
+
+              {ocorrenciasExibidas.length > 0 ? (
+                <OccurrencesList>
+                  {ocorrenciasExibidas.map(renderOccurrenceCard)}
+                </OccurrencesList>
+              ) : (
+                <EmptyMessage>
+                  Nenhuma ocorrência encontrada nesta categoria.
+                </EmptyMessage>
+              )}
+            </Section>
+          )}
+
+          {secao === "notificacoes" && (
+            <NotificationsCenter
+              title="Central de notificações"
+              subtitle="Atualizações importantes sobre sua fila e atendimentos."
+              notifications={notifications}
+              onMarkRead={marcarNotificacaoComoLida}
+              onMarkAllRead={marcarTodasNotificacoesComoLidas}
+            />
+          )}
+
+          {secao === "suporte" && (
+            <Section>
+              <SectionHeader>
+                <div>
+                  <h2>Canais de suporte ao técnico</h2>
+                  <p>Precisa de auxílio técnico ou escalonamento durante um atendimento?</p>
+                </div>
+              </SectionHeader>
+
+              <SupportGrid>
+                <SupportCard>
+                  <h3>
+                    <i className="fa-solid fa-headset" aria-hidden="true" />
+                    Central Operacional 24h
+                  </h3>
+                  <p>
+                    Acione o time de engenharia e despacho para suporte imediato em campo,
+                    liberação de peças ou dúvidas de diagnóstico.
+                  </p>
+                  <a href="mailto:suporte@smartlift.com.br?subject=Suporte%20T%C3%A9cnico%20em%20Campo">
+                    Contatar central
+                  </a>
+                </SupportCard>
+
+                <SupportCard>
+                  <h3>
+                    <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+                    Protocolo de SLA Crítico
+                  </h3>
+                  <p>
+                    Ocorrências com prioridade Alta devem ser priorizadas imediatamente.
+                    Consulte sua fila de pendentes para verificar chamados críticos.
+                  </p>
+                  <a
+                    href="#ocorrencias"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      irParaOcorrencias("Pendentes");
+                    }}
+                  >
+                    Ver fila pendente
+                  </a>
+                </SupportCard>
+              </SupportGrid>
+            </Section>
+          )}
         </PageContent>
       </DashboardMain>
     </DashboardShell>
