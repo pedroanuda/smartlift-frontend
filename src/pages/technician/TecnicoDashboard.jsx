@@ -287,20 +287,26 @@ function getGrupoStatus(status = "") {
   return "Pendentes";
 }
 
-export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel" }) {
+export default function TecnicoDashboard({
+  usuario: usuarioProp,
+  secao = "painel",
+}) {
   const outletContext = useOutletContext() || {};
-  const usuario = usuarioProp || outletContext.usuario || UsuarioService.buscarUsuarioLogado();
+  const usuario =
+    usuarioProp ||
+    outletContext.usuario ||
+    UsuarioService.buscarUsuarioLogado();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [filtro, setFiltro] = useState(
-    () => location.state?.filtro || "Pendentes"
+    () => location.state?.filtro || "Pendentes",
   );
   const [ocorrencias, setOcorrencias] = useState(() =>
-    OcorrenciaService.buscarOcorrencias()
+    OcorrenciaService.buscarOcorrencias(),
   );
   const [notificacoesLidas, setNotificacoesLidas] = useState(() =>
-    NotificacaoService.buscarIdsLidas(usuario?.id)
+    NotificacaoService.buscarIdsLidas(usuario?.id),
   );
 
   useEffect(() => {
@@ -320,25 +326,25 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
   }, [usuario?.id]);
 
   const ocorrenciasPendentes = ocorrencias.filter(
-    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Pendentes"
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Pendentes",
   );
   const ocorrenciasEmAndamento = ocorrencias.filter(
-    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Em andamento"
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Em andamento",
   );
   const ocorrenciasConcluidas = ocorrencias.filter(
-    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Concluídas"
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Concluídas",
   );
   const ocorrenciasSlaCritico = ocorrencias.filter(
     (ocorrencia) =>
       getGrupoStatus(ocorrencia.status) !== "Concluídas" &&
-      (ocorrencia.prioridade || "").toLocaleLowerCase("pt-BR") === "alta"
+      (ocorrencia.prioridade || "").toLocaleLowerCase("pt-BR") === "alta",
   );
 
   const atendimentosAtivos =
     ocorrenciasPendentes.length + ocorrenciasEmAndamento.length;
 
   const ocorrenciasExibidas = ocorrencias.filter(
-    (ocorrencia) => getGrupoStatus(ocorrencia.status) === filtro
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === filtro,
   );
 
   const irParaOcorrencias = (filtroInicial = "Pendentes") => {
@@ -348,43 +354,57 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
 
   const notificacoesBase = [
     ...(ocorrenciasSlaCritico.length > 0
-      ? [{
-          id: `tecnico-criticas-${ocorrenciasSlaCritico.length}`,
-          title: `${ocorrenciasSlaCritico.length} ocorrência(s) de alta prioridade`,
-          description: "Existem chamados críticos aguardando ação imediata para manter o SLA em dia.",
-          actionLabel: "Ver chamados críticos",
-          accent: "#d9534f",
-          bg: "#fdeeee",
-          icon: <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />,
-          unread: true,
-          onClick: () => irParaOcorrencias("Pendentes"),
-        }]
+      ? [
+          {
+            id: `tecnico-criticas-${ocorrenciasSlaCritico.length}`,
+            title: `${ocorrenciasSlaCritico.length} ocorrência(s) de alta prioridade`,
+            description:
+              "Existem chamados críticos aguardando ação imediata para manter o SLA em dia.",
+            actionLabel: "Ver chamados críticos",
+            accent: "#d9534f",
+            bg: "#fdeeee",
+            icon: (
+              <i
+                className="fa-solid fa-triangle-exclamation"
+                aria-hidden="true"
+              />
+            ),
+            unread: true,
+            onClick: () => irParaOcorrencias("Pendentes"),
+          },
+        ]
       : []),
     ...(ocorrenciasPendentes.length > 0
-      ? [{
-          id: `tecnico-fila-${ocorrenciasPendentes.length}`,
-          title: `${ocorrenciasPendentes.length} ocorrência(s) pendente(s) na fila`,
-          description: "Confira os chamados aguardando início de atendimento técnico.",
-          actionLabel: "Ver pendentes",
-          accent: "#b67a19",
-          bg: "#fff4df",
-          icon: <i className="fa-solid fa-clock" aria-hidden="true" />,
-          unread: true,
-          onClick: () => irParaOcorrencias("Pendentes"),
-        }]
+      ? [
+          {
+            id: `tecnico-fila-${ocorrenciasPendentes.length}`,
+            title: `${ocorrenciasPendentes.length} ocorrência(s) pendente(s) na fila`,
+            description:
+              "Confira os chamados aguardando início de atendimento técnico.",
+            actionLabel: "Ver pendentes",
+            accent: "#b67a19",
+            bg: "#fff4df",
+            icon: <i className="fa-solid fa-clock" aria-hidden="true" />,
+            unread: true,
+            onClick: () => irParaOcorrencias("Pendentes"),
+          },
+        ]
       : []),
     ...(ocorrenciasEmAndamento.length > 0
-      ? [{
-          id: `tecnico-andamento-${ocorrenciasEmAndamento.length}`,
-          title: `${ocorrenciasEmAndamento.length} atendimento(s) em andamento`,
-          description: "Acompanhe os atendimentos atualmente em execução sob sua responsabilidade.",
-          actionLabel: "Ver em andamento",
-          accent: "#1765b1",
-          bg: "#eaf0ff",
-          icon: <i className="fa-solid fa-wrench" aria-hidden="true" />,
-          unread: true,
-          onClick: () => irParaOcorrencias("Em andamento"),
-        }]
+      ? [
+          {
+            id: `tecnico-andamento-${ocorrenciasEmAndamento.length}`,
+            title: `${ocorrenciasEmAndamento.length} atendimento(s) em andamento`,
+            description:
+              "Acompanhe os atendimentos atualmente em execução sob sua responsabilidade.",
+            actionLabel: "Ver em andamento",
+            accent: "#1765b1",
+            bg: "#eaf0ff",
+            icon: <i className="fa-solid fa-wrench" aria-hidden="true" />,
+            unread: true,
+            onClick: () => irParaOcorrencias("Em andamento"),
+          },
+        ]
       : []),
   ];
 
@@ -402,7 +422,7 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
   const marcarTodasNotificacoesComoLidas = () => {
     NotificacaoService.marcarTodasComoLidas(
       usuario?.id,
-      notificacoesNaoLidas.map((item) => item.id)
+      notificacoesNaoLidas.map((item) => item.id),
     );
   };
 
@@ -444,10 +464,36 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
   ];
 
   const metrics = [
-    { icon: <i className="fa-solid fa-hourglass-half" aria-hidden="true" />, color: "#b67a19", label: "Ocorrências pendentes", number: ocorrenciasPendentes.length, filter: "Pendentes" },
-    { icon: <i className="fa-solid fa-wrench" aria-hidden="true" />, color: "#2861c8", label: "Em andamento", number: ocorrenciasEmAndamento.length, filter: "Em andamento" },
-    { icon: <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />, color: "#d9534f", label: "SLA crítico", number: ocorrenciasSlaCritico.length, filter: "Pendentes" },
-    { icon: <i className="fa-solid fa-circle-check" aria-hidden="true" />, color: "#398e4f", label: "Concluídas", number: ocorrenciasConcluidas.length, filter: "Concluídas" },
+    {
+      icon: <i className="fa-solid fa-hourglass-half" aria-hidden="true" />,
+      color: "#b67a19",
+      label: "Ocorrências pendentes",
+      number: ocorrenciasPendentes.length,
+      filter: "Pendentes",
+    },
+    {
+      icon: <i className="fa-solid fa-wrench" aria-hidden="true" />,
+      color: "#2861c8",
+      label: "Em andamento",
+      number: ocorrenciasEmAndamento.length,
+      filter: "Em andamento",
+    },
+    {
+      icon: (
+        <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />
+      ),
+      color: "#d9534f",
+      label: "SLA crítico",
+      number: ocorrenciasSlaCritico.length,
+      filter: "Pendentes",
+    },
+    {
+      icon: <i className="fa-solid fa-circle-check" aria-hidden="true" />,
+      color: "#398e4f",
+      label: "Concluídas",
+      number: ocorrenciasConcluidas.length,
+      filter: "Concluídas",
+    },
   ];
 
   const formatDate = (date) => {
@@ -493,14 +539,14 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
 
   const renderOccurrenceCard = (ocorrencia) => {
     const atendimento = ocorrencia.atendimentos?.find(
-      (item) => item.tecnicoId === usuario.id
+      (item) => item.tecnicoId === usuario.id,
     );
 
     return (
       <OccurrenceCard
         key={ocorrencia.id}
         type="button"
-        onClick={() => irParaOcorrencias(getGrupoStatus(ocorrencia.status))}
+        onClick={() => navigate(`/ocorrencias/${ocorrencia.id}`)}
       >
         <OccurrenceTop>
           <Priority>Prioridade {ocorrencia.prioridade || "Média"}</Priority>
@@ -543,7 +589,8 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
     },
     notificacoes: {
       title: "Notificações",
-      subtitle: "Acompanhe alertas de SLA, fila pendente e atendimentos ativos.",
+      subtitle:
+        "Acompanhe alertas de SLA, fila pendente e atendimentos ativos.",
     },
     suporte: {
       title: "Ajuda e suporte técnico",
@@ -571,7 +618,10 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
               <MetricsGrid>
                 {metrics.map((metric) => (
                   <MetricCard key={metric.label}>
-                    <div className="metric-icon" style={{ color: metric.color }}>
+                    <div
+                      className="metric-icon"
+                      style={{ color: metric.color }}
+                    >
                       {metric.icon}
                     </div>
                     <div className="metric-label">{metric.label}</div>
@@ -580,7 +630,11 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
                       type="button"
                       onClick={() => irParaOcorrencias(metric.filter)}
                     >
-                      Ver todas <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                      Ver todas{" "}
+                      <i
+                        className="fa-solid fa-arrow-right"
+                        aria-hidden="true"
+                      />
                     </button>
                   </MetricCard>
                 ))}
@@ -590,14 +644,21 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
                 <SectionHeader>
                   <div>
                     <h2>Próximos atendimentos</h2>
-                    <p>Resumo rápido das ocorrências pendentes e em andamento.</p>
+                    <p>
+                      Resumo rápido das ocorrências pendentes e em andamento.
+                    </p>
                   </div>
-                  <LinkButton type="button" onClick={() => irParaOcorrencias("Pendentes")}>
-                    Ver todas as ocorrências <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                  <LinkButton
+                    type="button"
+                    onClick={() => irParaOcorrencias("Pendentes")}
+                  >
+                    Ver todas as ocorrências{" "}
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
                   </LinkButton>
                 </SectionHeader>
 
-                {[...ocorrenciasPendentes, ...ocorrenciasEmAndamento].length > 0 ? (
+                {[...ocorrenciasPendentes, ...ocorrenciasEmAndamento].length >
+                0 ? (
                   <OccurrencesList>
                     {[...ocorrenciasPendentes, ...ocorrenciasEmAndamento]
                       .slice(0, 3)
@@ -624,7 +685,10 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
               <Tabs>
                 {[
                   { label: "Pendentes", count: ocorrenciasPendentes.length },
-                  { label: "Em andamento", count: ocorrenciasEmAndamento.length },
+                  {
+                    label: "Em andamento",
+                    count: ocorrenciasEmAndamento.length,
+                  },
                   { label: "Concluídas", count: ocorrenciasConcluidas.length },
                 ].map((tab) => (
                   <Tab
@@ -665,7 +729,10 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
               <SectionHeader>
                 <div>
                   <h2>Canais de suporte ao técnico</h2>
-                  <p>Precisa de auxílio técnico ou escalonamento durante um atendimento?</p>
+                  <p>
+                    Precisa de auxílio técnico ou escalonamento durante um
+                    atendimento?
+                  </p>
                 </div>
               </SectionHeader>
 
@@ -676,8 +743,8 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
                     Central Operacional 24h
                   </h3>
                   <p>
-                    Acione o time de engenharia e despacho para suporte imediato em campo,
-                    liberação de peças ou dúvidas de diagnóstico.
+                    Acione o time de engenharia e despacho para suporte imediato
+                    em campo, liberação de peças ou dúvidas de diagnóstico.
                   </p>
                   <a href="mailto:suporte@smartlift.com.br?subject=Suporte%20T%C3%A9cnico%20em%20Campo">
                     Contatar central
@@ -686,12 +753,16 @@ export default function TecnicoDashboard({ usuario: usuarioProp, secao = "painel
 
                 <SupportCard>
                   <h3>
-                    <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+                    <i
+                      className="fa-solid fa-shield-halved"
+                      aria-hidden="true"
+                    />
                     Protocolo de SLA Crítico
                   </h3>
                   <p>
-                    Ocorrências com prioridade Alta devem ser priorizadas imediatamente.
-                    Consulte sua fila de pendentes para verificar chamados críticos.
+                    Ocorrências com prioridade Alta devem ser priorizadas
+                    imediatamente. Consulte sua fila de pendentes para verificar
+                    chamados críticos.
                   </p>
                   <a
                     href="#ocorrencias"

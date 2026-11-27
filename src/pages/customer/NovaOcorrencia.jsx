@@ -256,6 +256,7 @@ export default function NovaOcorrencia() {
 
   const [arquivos, setArquivos] = useState([]);
   const [mensagem, setMensagem] = useState("");
+  const [ocorrenciaCriadaId, setOcorrenciaCriadaId] = useState(null);
   const [erro, setErro] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
@@ -393,6 +394,7 @@ export default function NovaOcorrencia() {
       OcorrenciaService.salvarNovaOcorrencia(novaOcorrencia);
 
       setErro(false);
+      setOcorrenciaCriadaId(novaOcorrencia.id);
       setMensagem(
         `Ocorrência registrada com sucesso! Código: ${novaOcorrencia.id}`,
       );
@@ -656,6 +658,28 @@ export default function NovaOcorrencia() {
             {mensagem && (
               <Feedback $error={erro} role="status">
                 {mensagem}
+                {!erro && ocorrenciaCriadaId && (
+                  <>
+                    {" "}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(`/ocorrencias/${ocorrenciaCriadaId}`)
+                      }
+                      style={{
+                        border: 0,
+                        background: "transparent",
+                        color: "#1765b1",
+                        fontWeight: 600,
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                        padding: 0,
+                      }}
+                    >
+                      Ver ocorrência
+                    </button>
+                  </>
+                )}
               </Feedback>
             )}
 

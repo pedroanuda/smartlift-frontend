@@ -247,6 +247,15 @@ const TabelaScroll = styled.div`
     border-bottom: 1px solid #edf0f4;
   }
 
+  tbody tr {
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  tbody tr:hover {
+    background: #f5f8fc;
+  }
+
   td strong {
     display: block;
     color: ${CORES.azulEscuro};
@@ -1180,7 +1189,17 @@ export default function GestorDashboard({
 
                   <tbody>
                     {ocorrenciasFiltradas.map((item) => (
-                      <tr key={item.id}>
+                      <tr
+                        key={item.id}
+                        onClick={() =>
+                          navigate(`/ocorrencias/${item.id}`, {
+                            state:
+                              item.origem === "demo"
+                                ? { ocorrenciaDemo: item }
+                                : undefined,
+                          })
+                        }
+                      >
                         <td>
                           <strong>#{item.id}</strong>
                           <small>{formatarData(item)}</small>

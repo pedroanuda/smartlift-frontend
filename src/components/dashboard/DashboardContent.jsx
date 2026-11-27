@@ -7,8 +7,12 @@ export const SummaryGrid = styled.div`
   gap: 0.55rem;
   margin-bottom: 0.8rem;
 
-  @media (max-width: 860px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  @media (max-width: 390px) { grid-template-columns: 1fr; }
+  @media (max-width: 860px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (max-width: 390px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const SummaryCardButton = styled.button`
@@ -23,7 +27,10 @@ const SummaryCardButton = styled.button`
   align-items: center;
   gap: 0.6rem;
   cursor: pointer;
-  &:hover { border-color: #9ab5e9; box-shadow: 0 2px 8px #0a1c3f12; }
+  &:hover {
+    border-color: #9ab5e9;
+    box-shadow: 0 2px 8px #0a1c3f12;
+  }
 
   & > span:first-child {
     width: 2.65rem;
@@ -36,17 +43,43 @@ const SummaryCardButton = styled.button`
     place-items: center;
     font-size: 1.2rem;
   }
-  & > span:last-child { display: grid; gap: 0.2rem; }
-  small { color: #566276; font-size: 0.66rem; line-height: 1.3; }
-  strong { font-size: 1.25rem; }
-  em { color: #1255b5; font-size: 0.64rem; font-style: normal; font-weight: 700; }
+  & > span:last-child {
+    display: grid;
+    gap: 0.2rem;
+  }
+  small {
+    color: #566276;
+    font-size: 0.66rem;
+    line-height: 1.3;
+  }
+  strong {
+    font-size: 1.25rem;
+  }
+  em {
+    color: #1255b5;
+    font-size: 0.64rem;
+    font-style: normal;
+    font-weight: 700;
+  }
 `;
 
-export function SummaryCard({ icon, title, value, action, tone, ink, onClick }) {
+export function SummaryCard({
+  icon,
+  title,
+  value,
+  action,
+  tone,
+  ink,
+  onClick,
+}) {
   return (
     <SummaryCardButton type="button" $tone={tone} $ink={ink} onClick={onClick}>
       <span>{icon}</span>
-      <span><small>{title}</small><strong>{value}</strong><em>{action}</em></span>
+      <span>
+        <small>{title}</small>
+        <strong>{value}</strong>
+        <em>{action}</em>
+      </span>
     </SummaryCardButton>
   );
 }
@@ -64,7 +97,9 @@ export const PanelHeader = styled.div`
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.65rem;
-  h2 { font-size: 0.9rem; }
+  h2 {
+    font-size: 0.9rem;
+  }
 `;
 
 export const PanelAction = styled.button`
@@ -89,7 +124,8 @@ export const StatusTabs = styled.div`
 export const StatusTab = styled.button`
   padding: 0.6rem 0.7rem;
   border: 0;
-  border-bottom: 2px solid ${({ $active }) => ($active ? "#2861c8" : "transparent")};
+  border-bottom: 2px solid
+    ${({ $active }) => ($active ? "#2861c8" : "transparent")};
   background: transparent;
   color: ${({ $active }) => ($active ? "#172a4c" : "#596579")};
   font: inherit;
@@ -106,13 +142,22 @@ export const EmptyState = styled.p`
   font-size: 0.75rem;
 `;
 
-export const OccurrenceList = styled.div`display: grid; gap: 0.55rem;`;
+export const OccurrenceList = styled.div`
+  display: grid;
+  gap: 0.55rem;
+`;
 
 const OccurrenceCardContainer = styled.article`
   min-height: 6rem;
   padding: 0.8rem 0.75rem;
   border: 1px solid #e7e9ed;
-  border-left: 3px solid ${({ $group }) => ($group === "concluidas" ? "#43a35b" : $group === "atendimento" ? "#4c7fe0" : "#e4ad43")};
+  border-left: 3px solid
+    ${({ $group }) =>
+      $group === "concluidas"
+        ? "#43a35b"
+        : $group === "atendimento"
+          ? "#4c7fe0"
+          : "#e4ad43"};
   border-radius: 0.45rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -121,7 +166,10 @@ const OccurrenceCardContainer = styled.article`
 
   @media (max-width: 600px) {
     grid-template-columns: 1fr auto;
-    & > span:last-child { grid-column: 1 / -1; justify-self: start; }
+    & > span:last-child {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
   }
 `;
 
@@ -129,21 +177,56 @@ const OccurrenceDetails = styled.div`
   min-width: 0;
   display: grid;
   gap: 0.3rem;
-  & > div:first-child { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-  strong { font-size: 0.7rem; }
-  h3 { font-size: 0.72rem; }
-  p { color: #647084; font-size: 0.67rem; }
-  small { color: #647084; font-size: 0.63rem; }
+  & > div:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  strong {
+    font-size: 0.7rem;
+  }
+  h3 {
+    font-size: 0.72rem;
+  }
+  p {
+    color: #647084;
+    font-size: 0.67rem;
+  }
+  small {
+    color: #647084;
+    font-size: 0.63rem;
+  }
 `;
 
-const Arrow = styled.span`color: #818b9b; font-size: 0.85rem;`;
+const Arrow = styled.span`
+  color: #818b9b;
+  font-size: 0.85rem;
+`;
 
-export function OccurrenceCard({ group, status, children }) {
+export function OccurrenceCard({ group, status, onClick, children }) {
+  const handleKeyDown = (event) => {
+    if (!onClick) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick(event);
+    }
+  };
+
   return (
-    <OccurrenceCardContainer $group={group}>
+    <OccurrenceCardContainer
+      $group={group}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      style={onClick ? { cursor: "pointer" } : undefined}
+    >
       {children}
       <StatusBadge $group={group}>{status}</StatusBadge>
-      <Arrow aria-hidden="true"><i className="fa-solid fa-chevron-right" /></Arrow>
+      <Arrow aria-hidden="true">
+        <i className="fa-solid fa-chevron-right" />
+      </Arrow>
     </OccurrenceCardContainer>
   );
 }
@@ -155,8 +238,18 @@ export function OccurrenceCardDetails({ children }) {
 export const StatusBadge = styled.span`
   padding: 0.25rem 0.5rem;
   border-radius: 0.4rem;
-  background: ${({ $group }) => ($group === "concluidas" ? "#e5f5e8" : $group === "atendimento" ? "#e9f0ff" : "#fff3de")};
-  color: ${({ $group }) => ($group === "concluidas" ? "#328345" : $group === "atendimento" ? "#2859b4" : "#a36a13")};
+  background: ${({ $group }) =>
+    $group === "concluidas"
+      ? "#e5f5e8"
+      : $group === "atendimento"
+        ? "#e9f0ff"
+        : "#fff3de"};
+  color: ${({ $group }) =>
+    $group === "concluidas"
+      ? "#328345"
+      : $group === "atendimento"
+        ? "#2859b4"
+        : "#a36a13"};
   font-size: 0.62rem;
   font-weight: 700;
   white-space: nowrap;

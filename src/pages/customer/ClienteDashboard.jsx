@@ -187,12 +187,12 @@ export default function ClienteDashboard({
             id: `avaliacao-${pendingEvaluation.id}`,
             title: "Avaliação pendente",
             description: `Avalie o atendimento concluído (${getOccurrenceCode(pendingEvaluation)}).`,
-            actionLabel: "Ver concluídas",
+            actionLabel: "Avaliar agora",
             accent: "#398e4f",
             bg: "#e7f5e9",
             icon: <i className="fa-solid fa-star" aria-hidden="true" />,
             unread: true,
-            onClick: () => goToOccurrences("concluidas"),
+            onClick: () => navigate(`/ocorrencias/${pendingEvaluation.id}`),
           },
         ]
       : []),
@@ -310,6 +310,7 @@ export default function ClienteDashboard({
                   key={occurrence.id}
                   group={group}
                   status={occurrence.status}
+                  onClick={() => navigate(`/ocorrencias/${occurrence.id}`)}
                 >
                   <OccurrenceCardDetails>
                     <div>
@@ -463,9 +464,9 @@ export default function ClienteDashboard({
                       ? `Sua nota: ${latestEvaluation.avaliacao.nota}/5${latestEvaluation.avaliacao.comentario ? ` — ${latestEvaluation.avaliacao.comentario}` : ""}`
                       : "Quando um atendimento for concluído, você poderá compartilhar sua experiência."
                 }
-                actionHref={
+                onAction={
                   pendingEvaluation
-                    ? "mailto:suporte@smartlift.com.br?subject=Avalia%C3%A7%C3%A3o%20do%20atendimento"
+                    ? () => navigate(`/ocorrencias/${pendingEvaluation.id}`)
                     : null
                 }
                 actionLabel="Avaliar atendimento"

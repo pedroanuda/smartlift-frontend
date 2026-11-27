@@ -6,6 +6,7 @@ import ClienteDashboard from "./pages/customer/ClienteDashboard";
 import NovaOcorrencia from "./pages/customer/NovaOcorrencia";
 import TecnicoDashboard from "./pages/technician/TecnicoDashboard";
 import GestorDashboard from "./pages/manager/GestorDashboard";
+import OcorrenciaDetalhes from "./pages/OcorrenciaDetalhes";
 
 export const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
+      },
+      {
+        path: "/ocorrencias/:id",
+        element: <OcorrenciaDetalhes />,
       },
       {
         element: <ProtectedRoute allowedRoles={["cliente"]} />,

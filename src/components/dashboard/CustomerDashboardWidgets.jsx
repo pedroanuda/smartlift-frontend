@@ -83,15 +83,18 @@ const Feedback = styled.div`
   gap: 0.8rem;
   h2 { margin-bottom: 0.25rem; font-size: 0.75rem; }
   p { color: #68758a; font-size: 0.65rem; }
-  a {
+  a, button {
     flex: 0 0 auto;
     padding: 0.6rem 0.9rem;
+    border: 0;
     border-radius: 0.35rem;
     background: #09234b;
     color: white;
     text-decoration: none;
+    font: inherit;
     font-size: 0.66rem;
     font-weight: 700;
+    cursor: pointer;
   }
 `;
 
@@ -149,11 +152,15 @@ export function ServiceTimeline({ occurrence, position, steps }) {
   );
 }
 
-export function CustomerFeedback({ title, message, actionHref, actionLabel }) {
+export function CustomerFeedback({ title, message, actionHref, onAction, actionLabel }) {
   return (
     <Feedback>
       <div><h2>{title}</h2><p>{message}</p></div>
-      {actionHref && <a href={actionHref}>{actionLabel}</a>}
+      {onAction ? (
+        <button type="button" onClick={onAction}>{actionLabel}</button>
+      ) : (
+        actionHref && <a href={actionHref}>{actionLabel}</a>
+      )}
     </Feedback>
   );
 }
