@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 import smartliftLogo from "../../assets/smartlift-logo.webp";
-import db from "../../db";
+import UsuarioService from "../../services/UsuarioService";
 import NotificacaoService from "../../services/NotificacaoService";
 
 const Page = styled.div`
@@ -463,7 +463,7 @@ export function DashboardShell({
   const location = useLocation();
   const [openMenu, setOpenMenu] = useState(null);
   const [readIds, setReadIds] = useState(() =>
-    NotificacaoService.buscarIdsLidas(user?.id)
+    NotificacaoService.buscarIdsLidas(user?.id),
   );
   const actionsRef = useRef(null);
   const initials = `${user.nome?.[0] ?? ""}${user.sobrenome?.[0] ?? ""}`;
@@ -480,7 +480,9 @@ export function DashboardShell({
     ...item,
     unread: Boolean(item.unread) && !readIds.includes(item.id),
   }));
-  const unreadCount = resolvedNotifications.filter((item) => item.unread).length;
+  const unreadCount = resolvedNotifications.filter(
+    (item) => item.unread,
+  ).length;
 
   useEffect(() => {
     if (!openMenu) return undefined;
@@ -516,7 +518,7 @@ export function DashboardShell({
 
   function handleLogout() {
     setOpenMenu(null);
-    db.dados.logado = null;
+    UsuarioService.logout();
     navigate("/login");
   }
 

@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 
 import {
@@ -9,11 +8,9 @@ import {
   DashboardIntro,
 } from "../../components/dashboard/DashboardLayout";
 
-import db from "../../db";
 import UsuarioService from "../../services/UsuarioService";
 import ContratoService from "../../services/ContratoService";
 import OcorrenciaService from "../../services/OcorrenciaService";
-
 
 // ------------------------------------------
 // ESTILIZAÇÃO
@@ -49,7 +46,8 @@ const Field = styled.div`
   gap: 0.4rem;
   min-width: 0;
 
-  label, legend {
+  label,
+  legend {
     font-size: 0.73rem;
     font-weight: 600;
     color: #171717;
@@ -226,7 +224,7 @@ const SubmitButton = styled.button`
 const Feedback = styled.p`
   margin-top: 0.8rem;
   font-size: 0.75rem;
-  color: ${({ $error }) => $error ? "#c62828" : "#267443"};
+  color: ${({ $error }) => ($error ? "#c62828" : "#267443")};
 `;
 
 // ------------------------------------------
@@ -235,18 +233,16 @@ const Feedback = styled.p`
 
 export default function NovaOcorrencia() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const usuario = UsuarioService.buscarUsuarioPorId(
-    db.dados.logado
-  );
+  const usuario = UsuarioService.buscarUsuarioLogado();
 
   const contratos = usuario
     ? ContratoService.buscarContratosPorClienteId(usuario.id)
     : [];
 
   const contratosAtivos = contratos.filter(
-    contrato =>
-      contrato.statusOperacional?.toLowerCase() === "ativo"
+    (contrato) => contrato.statusOperacional?.toLowerCase() === "ativo",
   );
 
   const [form, setForm] = useState({
