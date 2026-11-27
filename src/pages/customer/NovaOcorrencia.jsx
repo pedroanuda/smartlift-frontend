@@ -415,42 +415,6 @@ export default function NovaOcorrencia() {
 
       setArquivos([]);
       event.target.reset();
-
-
-      // Atualização da base simulada em memória
-      //db.dados.ocorrencias.push(novaOcorrencia);
-      //OcorrenciaService.salvarNovaOcorrencia(novaOcorrencia);
-
-      // Persistência local do registro criado
-      const registrosSalvos = JSON.parse(
-        localStorage.getItem("smartlift.novasOcorrencias") || "[]"
-      );
-
-      registrosSalvos.push(novaOcorrencia);
-
-      localStorage.setItem(
-        "smartlift.novasOcorrencias",
-        JSON.stringify(registrosSalvos)
-      );
-
-      setErro(false);
-      setMensagem(
-        `Ocorrência registrada com sucesso! Código: ${novaOcorrencia.id}`
-      );
-
-      setForm({
-        contratoId: "",
-        categoria: "",
-        prioridade: "Média",
-        descricao: "",
-        frequencia: "todo",
-        horario: ""
-      });
-
-      setArquivos([]);
-
-      event.target.reset();
-
     } catch (error) {
       console.error("Erro ao cadastrar ocorrência:", error);
       setErro(true);
@@ -727,6 +691,3 @@ export default function NovaOcorrencia() {
     </DashboardShell>
   );
 }
-window.dispatchEvent(
-  new Event("smartlift:ocorrencias-atualizadas")
-);

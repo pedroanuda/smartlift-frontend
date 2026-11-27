@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DashboardColumn,
   DashboardColumns,
@@ -80,7 +80,17 @@ function jumpTo(sectionId) {
 export default function ClienteDashboard({ usuario }) {
   const navigate = useNavigate();
   const contracts = ContratoService.buscarContratosPorClienteId(usuario.id);
-  const occurrences = OcorrenciaService.buscarOcorrenciasPorClienteId(usuario.id);
+  const [occurrences, setOccurrences] = useState(() =>
+    OcorrenciaService.buscarOcorrenciasPorClienteId(usuario.id)
+  );
+
+  useEffect(() => {
+    const carregarOcorrencias = () => {
+      setOccurrences(OcorrenciaService.buscarOcorrenciasPorClienteId(usuario.id));
+    };
+
+    return OcorrenciaService.inscreverAtualizacoes(carregarOcorrencias);
+  }, [usuario.id]);
   const activeContracts = contracts.filter(contract => contract.statusOperacional?.toLocaleLowerCase("pt-BR") === "ativo");
   const [selectedTab, setSelectedTab] = useState(() => {
     const firstAvailable = STATUS_TABS.find(tab => occurrences.some(occurrence => getGroup(occurrence.status) === tab.id));

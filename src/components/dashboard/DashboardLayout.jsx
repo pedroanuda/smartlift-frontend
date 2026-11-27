@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 import smartliftLogo from "../../assets/smartlift-logo.webp";
 import db from "../../db";
+import NotificacaoService from "../../services/NotificacaoService";
 
 const Page = styled.div`
   min-height: 100vh;
@@ -185,6 +186,22 @@ const DropdownHeader = styled.div`
   small {
     font-size: 0.66rem;
     color: #68758a;
+  }
+`;
+
+const MarkAllButton = styled.button`
+  border: 0;
+  background: transparent;
+  color: #1755b5;
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+
+  &:hover {
+    background: #eef3fb;
   }
 `;
 
@@ -445,9 +462,25 @@ export function DashboardShell({
   const navigate = useNavigate();
   const location = useLocation();
   const [openMenu, setOpenMenu] = useState(null);
+  const [readIds, setReadIds] = useState(() =>
+    NotificacaoService.buscarIdsLidas(user?.id)
+  );
   const actionsRef = useRef(null);
   const initials = `${user.nome?.[0] ?? ""}${user.sobrenome?.[0] ?? ""}`;
-  const unreadCount = notifications.filter((item) => item.unread).length;
+
+  useEffect(() => {
+    const atualizarLidas = () => {
+      setReadIds(NotificacaoService.buscarIdsLidas(user?.id));
+    };
+
+    return NotificacaoService.inscreverAtualizacoes(atualizarLidas);
+  }, [user?.id]);
+
+  const resolvedNotifications = notifications.map((item) => ({
+    ...item,
+    unread: Boolean(item.unread) && !readIds.includes(item.id),
+  }));
+  const unreadCount = resolvedNotifications.filter((item) => item.unread).length;
 
   useEffect(() => {
     if (!openMenu) return undefined;
@@ -526,19 +559,36 @@ export function DashboardShell({
               >
                 <DropdownHeader>
                   <strong>Notificações</strong>
-                  <small>
-                    {notifications.length}{" "}
-                    {notifications.length === 1 ? "item" : "itens"}
-                  </small>
+                  {unreadCount > 0 ? (
+                    <MarkAllButton
+                      type="button"
+                      onClick={() =>
+                        NotificacaoService.marcarTodasComoLidas(
+                          user?.id,
+                          resolvedNotifications
+                            .filter((item) => item.unread)
+                            .map((item) => item.id),
+                        )
+                      }
+                    >
+                      Marcar todas como lidas
+                    </MarkAllButton>
+                  ) : (
+                    <small>
+                      {resolvedNotifications.length}{" "}
+                      {resolvedNotifications.length === 1 ? "item" : "itens"}
+                    </small>
+                  )}
                 </DropdownHeader>
-                {notifications.length > 0 ? (
+                {resolvedNotifications.length > 0 ? (
                   <NotificationList>
-                    {notifications.map((item) => (
+                    {resolvedNotifications.map((item) => (
                       <NotificationItem
                         key={item.id}
                         type="button"
                         $unread={item.unread}
                         onClick={() => {
+                          NotificacaoService.marcarComoLida(user?.id, item.id);
                           setOpenMenu(null);
                           item.onClick?.();
                         }}

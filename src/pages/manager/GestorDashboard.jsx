@@ -11,8 +11,6 @@ import {
 import OcorrenciaService from "../../services/OcorrenciaService";
 import UsuarioService from "../../services/UsuarioService";
 
-const EVENTO_ATUALIZACAO = "smartlift:ocorrencias-atualizadas";
-
 const CORES = {
   azul: "#2861c8",
   azulEscuro: "#061f42",
@@ -784,63 +782,29 @@ function GraficoCategorias({ ocorrencias }) {
 // DASHBOARD DO GESTOR
 // --------------------------------------------------
 
+function buscarOcorrenciasNormalizadas() {
+  try {
+    return OcorrenciaService.buscarOcorrencias().map(normalizarOcorrencia);
+  } catch (erro) {
+    console.error("Erro ao carregar ocorrências:", erro);
+    return [];
+  }
+}
+
 export default function GestorDashboard({ usuario }) {
-  const [ocorrenciasReais, setOcorrenciasReais] = useState([]);
+  const [ocorrenciasReais, setOcorrenciasReais] = useState(
+    buscarOcorrenciasNormalizadas
+  );
   const [filtro, setFiltro] = useState("todas");
 
   // Busca os registros do sistema.
   const carregarOcorrencias = useCallback(() => {
-    try {
-      const registros = OcorrenciaService.buscarOcorrencias();
-
-      setOcorrenciasReais(
-        registros.map(normalizarOcorrencia)
-      );
-    } catch (erro) {
-      console.error(
-        "Erro ao carregar ocorrências:",
-        erro
-      );
-    }
+    setOcorrenciasReais(buscarOcorrenciasNormalizadas());
   }, []);
 
   // Atualiza quando uma ocorrência é cadastrada.
   useEffect(() => {
-    carregarOcorrencias();
-
-    window.addEventListener(
-      EVENTO_ATUALIZACAO,
-      carregarOcorrencias
-    );
-
-    // Atualização caso outra aba altere o localStorage.
-    window.addEventListener(
-      "storage",
-      carregarOcorrencias
-    );
-
-    // Atualização ao voltar para a aba.
-    window.addEventListener(
-      "focus",
-      carregarOcorrencias
-    );
-
-    return () => {
-      window.removeEventListener(
-        EVENTO_ATUALIZACAO,
-        carregarOcorrencias
-      );
-
-      window.removeEventListener(
-        "storage",
-        carregarOcorrencias
-      );
-
-      window.removeEventListener(
-        "focus",
-        carregarOcorrencias
-      );
-    };
+    return OcorrenciaService.inscreverAtualizacoes(carregarOcorrencias);
   }, [carregarOcorrencias]);
 
   // Junta os dados fictícios com os registros reais.

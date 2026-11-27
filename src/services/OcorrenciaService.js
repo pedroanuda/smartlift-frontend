@@ -6,22 +6,32 @@ import ContratoService from "./ContratoService";
 import PecaService from "./PecaService";
 import UsuarioService from "./UsuarioService";
 
-const CHAVE_STORAGE = "smartlift.novasOcorrencias";
+export const CHAVE_STORAGE_OCORRENCIAS = "smartlift.novasOcorrencias";
+export const EVENTO_OCORRENCIAS_ATUALIZADAS = "smartlift:ocorrencias-atualizadas";
+
+function lerRegistrosStorage() {
+  try {
+    const dados = localStorage.getItem(CHAVE_STORAGE_OCORRENCIAS);
+    const registros = JSON.parse(dados || "[]");
+
+    return Array.isArray(registros) ? registros : [];
+  } catch (erro) {
+    console.error("Erro ao ler ocorrências salvas:", erro);
+    return [];
+  }
+}
+
+function salvarRegistrosStorage(registros) {
+  try {
+    localStorage.setItem(CHAVE_STORAGE_OCORRENCIAS, JSON.stringify(registros));
+  } catch (erro) {
+    console.error("Erro ao salvar ocorrências no localStorage:", erro);
+  }
+}
 
 function buscarRegistrosBrutos() {
   const registrosMemoria = db.dados.ocorrencias || [];
-
-  let registrosStorage = [];
-
-  try {
-    registrosStorage = JSON.parse(localStorage.getItem(CHAVE_STORAGE) || "[]");
-
-    if (!Array.isArray(registrosStorage)) {
-      registrosStorage = [];
-    }
-  } catch (erro) {
-    console.error("Erro ao ler ocorrências salvas:", erro);
-  }
+  const registrosStorage = lerRegistrosStorage();
 
   // Consolida memória e localStorage sem duplicar IDs.
   const mapa = new Map();
@@ -121,19 +131,38 @@ export default class OcorrenciaService {
     // Atualiza a base em memória.
     db.dados.ocorrencias = registros;
 
-    // Persiste os registros criados.
-    localStorage.setItem(
-      CHAVE_STORAGE,
-      JSON.stringify(
-        registros.filter(
-          (item) => String(item.id).startsWith("DEMO-") === false,
-        ),
-      ),
-    );
+    // Persiste os registros criados sem duplicar IDs.
+    const mapaStorage = new Map();
 
-    // Atualiza o dashboard na mesma aba.
-    window.dispatchEvent(new Event("smartlift:ocorrencias-atualizadas"));
+    [...lerRegistrosStorage(), registro]
+      .filter((item) => String(item.id).startsWith("DEMO-") === false)
+      .forEach((item) => {
+        mapaStorage.set(String(item.id), item);
+      });
+
+    salvarRegistrosStorage(Array.from(mapaStorage.values()));
+
+    // Atualiza os dashboards na mesma aba.
+    window.dispatchEvent(new Event(EVENTO_OCORRENCIAS_ATUALIZADAS));
 
     return ocorrenciaObjectToInstance(registro);
+  }
+
+  static inscreverAtualizacoes(callback) {
+    const aoAlterarStorage = (event) => {
+      if (event.key === null || event.key === CHAVE_STORAGE_OCORRENCIAS) {
+        callback();
+      }
+    };
+
+    window.addEventListener(EVENTO_OCORRENCIAS_ATUALIZADAS, callback);
+    window.addEventListener("storage", aoAlterarStorage);
+    window.addEventListener("focus", callback);
+
+    return () => {
+      window.removeEventListener(EVENTO_OCORRENCIAS_ATUALIZADAS, callback);
+      window.removeEventListener("storage", aoAlterarStorage);
+      window.removeEventListener("focus", callback);
+    };
   }
 }
