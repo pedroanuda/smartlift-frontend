@@ -11,6 +11,7 @@ import {
 } from "../../components/dashboard/DashboardLayout";
 
 import OcorrenciaService from "../../services/OcorrenciaService";
+import NotificacaoService from "../../services/NotificacaoService";
 
 const PageContent = styled.div`
   display: grid;
@@ -202,6 +203,187 @@ const SupportText = styled.p`
   line-height: 1.6;
 `;
 
+const NotificationHeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+`;
+
+const UnreadPill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: ${({ $hasUnread }) => ($hasUnread ? "#eef3fb" : "#e7f5e9")};
+  color: ${({ $hasUnread }) => ($hasUnread ? "#1765b1" : "#2f7d42")};
+`;
+
+const MarkAllReadButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #d7e2f1;
+  border-radius: 8px;
+  background: #f7faff;
+  color: #1765b1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    background: #eaf1fc;
+    border-color: #1765b1;
+  }
+`;
+
+const NotificationFilters = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+`;
+
+const FilterChip = styled.button`
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid ${({ $active }) => ($active ? "#1765b1" : "#e2e8f0")};
+  background: ${({ $active }) => ($active ? "#1765b1" : "#fff")};
+  color: ${({ $active }) => ($active ? "#fff" : "#58677c")};
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    border-color: #1765b1;
+  }
+`;
+
+const NotificationFeed = styled.div`
+  display: grid;
+  gap: 0.75rem;
+`;
+
+const NotificationCard = styled.article`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid ${({ $unread }) => ($unread ? "#d4e3f7" : "#edf0f4")};
+  border-left: 4px solid ${({ $accent, $unread }) => ($unread ? $accent : "#cbd5e1")};
+  background: ${({ $unread }) => ($unread ? "#fafcff" : "#fff")};
+  transition: 0.2s ease;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
+`;
+
+const NotificationIcon = styled.div`
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 10px;
+  background: ${({ $bg }) => $bg};
+  color: ${({ $color }) => $color};
+  display: grid;
+  place-items: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+`;
+
+const NotificationBody = styled.div`
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    color: #102b50;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  p {
+    margin-top: 0.25rem;
+    color: #607087;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+`;
+
+const NotificationTag = styled.span`
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: ${({ $unread }) => ($unread ? "#1765b1" : "#eef2f6")};
+  color: ${({ $unread }) => ($unread ? "#fff" : "#68758a")};
+`;
+
+const NotificationCardActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+`;
+
+const CardActionButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 7px;
+  border: 1px solid ${({ $primary }) => ($primary ? "#1765b1" : "#dce3ed")};
+  background: ${({ $primary }) => ($primary ? "#1765b1" : "#fff")};
+  color: ${({ $primary }) => ($primary ? "#fff" : "#4a5a71")};
+  font-size: 0.73rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    background: ${({ $primary }) => ($primary ? "#125291" : "#f4f7fb")};
+  }
+`;
+
+const NotificationEmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 2rem 1rem;
+  border-radius: 10px;
+  border: 1px dashed #d8e2ee;
+  background: #fbfcfe;
+  text-align: center;
+
+  i {
+    font-size: 1.6rem;
+    color: #398e4f;
+  }
+
+  strong {
+    color: #102b50;
+    font-size: 0.9rem;
+  }
+
+  p {
+    color: #68758a;
+    font-size: 0.8rem;
+  }
+`;
+
 function jumpTo(id) {
   document.getElementById(id)?.scrollIntoView({
     behavior: "smooth",
@@ -209,17 +391,26 @@ function jumpTo(id) {
   });
 }
 
+function getGrupoStatus(status = "") {
+  const normalizado = status.toLocaleLowerCase("pt-BR");
 
-const STORAGE_KEY = "smartlift.novasOcorrencias";
-
-function buscarOcorrenciasLocalStorage() {
-  try {
-    const dados = localStorage.getItem(STORAGE_KEY);
-    return dados ? JSON.parse(dados) : [];
-  } catch (error) {
-    console.error("Erro ao carregar ocorrências:", error);
-    return [];
+  if (
+    normalizado.includes("finaliz") ||
+    normalizado.includes("conclu") ||
+    normalizado.includes("encerr")
+  ) {
+    return "Concluídas";
   }
+
+  if (
+    normalizado.includes("andamento") ||
+    normalizado.includes("atendimento") ||
+    normalizado.includes("execução")
+  ) {
+    return "Em andamento";
+  }
+
+  return "Pendentes";
 }
 
 
@@ -227,42 +418,122 @@ export default function TecnicoDashboard({ usuario }) {
   const navigate = useNavigate();
 
   const [filtro, setFiltro] = useState("Pendentes");
+  const [filtroNotificacoes, setFiltroNotificacoes] = useState("todas");
+  const [ocorrencias, setOcorrencias] = useState(() =>
+    OcorrenciaService.buscarOcorrencias()
+  );
+  const [notificacoesLidas, setNotificacoesLidas] = useState(() =>
+    NotificacaoService.buscarIdsLidas(usuario.id)
+  );
 
-  // Busca ocorrências que possuem atendimento atribuído ao técnico logado.
-    const ocorrenciasSalvas = buscarOcorrenciasLocalStorage();
+  useEffect(() => {
+    const carregarOcorrencias = () => {
+      setOcorrencias(OcorrenciaService.buscarOcorrencias());
+    };
 
-    const ocorrenciasOriginais = OcorrenciaService.buscarOcorrencias();
+    return OcorrenciaService.inscreverAtualizacoes(carregarOcorrencias);
+  }, []);
 
-    // Combina os dados do serviço com os cadastros do localStorage.
-    const ocorrenciasMap = new Map();
+  useEffect(() => {
+    const carregarLidas = () => {
+      setNotificacoesLidas(NotificacaoService.buscarIdsLidas(usuario.id));
+    };
 
-    [...ocorrenciasOriginais, ...ocorrenciasSalvas].forEach((ocorrencia) => {
-    ocorrenciasMap.set(String(ocorrencia.id), ocorrencia);
-    });
+    return NotificacaoService.inscreverAtualizacoes(carregarLidas);
+  }, [usuario.id]);
 
-    const ocorrencias = Array.from(ocorrenciasMap.values());
+  const ocorrenciasPendentes = ocorrencias.filter(
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Pendentes"
+  );
+  const ocorrenciasEmAndamento = ocorrencias.filter(
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Em andamento"
+  );
+  const ocorrenciasConcluidas = ocorrencias.filter(
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === "Concluídas"
+  );
+  const ocorrenciasSlaCritico = ocorrencias.filter(
+    (ocorrencia) =>
+      getGrupoStatus(ocorrencia.status) !== "Concluídas" &&
+      (ocorrencia.prioridade || "").toLocaleLowerCase("pt-BR") === "alta"
+  );
 
-    const ocorrenciasExibidas = ocorrencias.filter((ocorrencia) => {
-    const status = (ocorrencia.status || "Pendente").toLowerCase();
+  const atendimentosAtivos =
+    ocorrenciasPendentes.length + ocorrenciasEmAndamento.length;
 
-    if (filtro === "Pendentes") {
-        return status === "pendente" || status === "pendente de atribuição";
-    }
+  const ocorrenciasExibidas = ocorrencias.filter(
+    (ocorrencia) => getGrupoStatus(ocorrencia.status) === filtro
+  );
 
-    if (filtro === "Em andamento") {
-        return status === "em andamento";
-    }
+  const notificacoesBase = [
+    ...(ocorrenciasSlaCritico.length > 0
+      ? [{
+          id: `tecnico-criticas-${ocorrenciasSlaCritico.length}`,
+          title: `${ocorrenciasSlaCritico.length} ocorrência(s) de alta prioridade`,
+          description: "Existem chamados críticos aguardando ação imediata para manter o SLA em dia.",
+          actionLabel: "Ver chamados críticos",
+          accent: "#d9534f",
+          bg: "#fdeeee",
+          icon: <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />,
+          unread: true,
+          onClick: () => {
+            setFiltro("Pendentes");
+            jumpTo("ocorrencias-tecnico");
+          },
+        }]
+      : []),
+    ...(ocorrenciasPendentes.length > 0
+      ? [{
+          id: `tecnico-fila-${ocorrenciasPendentes.length}`,
+          title: `${ocorrenciasPendentes.length} ocorrência(s) pendente(s) na fila`,
+          description: "Confira os chamados aguardando início de atendimento técnico.",
+          actionLabel: "Ver pendentes",
+          accent: "#b67a19",
+          bg: "#fff4df",
+          icon: <i className="fa-solid fa-clock" aria-hidden="true" />,
+          unread: true,
+          onClick: () => {
+            setFiltro("Pendentes");
+            jumpTo("ocorrencias-tecnico");
+          },
+        }]
+      : []),
+    ...(ocorrenciasEmAndamento.length > 0
+      ? [{
+          id: `tecnico-andamento-${ocorrenciasEmAndamento.length}`,
+          title: `${ocorrenciasEmAndamento.length} atendimento(s) em andamento`,
+          description: "Acompanhe os atendimentos atualmente em execução sob sua responsabilidade.",
+          actionLabel: "Ver em andamento",
+          accent: "#1765b1",
+          bg: "#eaf0ff",
+          icon: <i className="fa-solid fa-wrench" aria-hidden="true" />,
+          unread: true,
+          onClick: () => {
+            setFiltro("Em andamento");
+            jumpTo("ocorrencias-tecnico");
+          },
+        }]
+      : []),
+  ];
 
-    if (filtro === "Concluídas") {
-        return (
-        status === "finalizada" ||
-        status === "concluída" ||
-        status === "concluida"
-        );
-    }
+  const notifications = notificacoesBase.map((item) => ({
+    ...item,
+    unread: item.unread && !notificacoesLidas.includes(item.id),
+  }));
 
-    return true;
-    });
+  const notificacoesNaoLidas = notifications.filter((item) => item.unread);
+  const notificacoesExibidas =
+    filtroNotificacoes === "nao-lidas" ? notificacoesNaoLidas : notifications;
+
+  const marcarNotificacaoComoLida = (id) => {
+    NotificacaoService.marcarComoLida(usuario.id, id);
+  };
+
+  const marcarTodasNotificacoesComoLidas = () => {
+    NotificacaoService.marcarTodasComoLidas(
+      usuario.id,
+      notificacoesNaoLidas.map((item) => item.id)
+    );
+  };
 
   const navigation = [
     {
@@ -279,7 +550,10 @@ export default function TecnicoDashboard({ usuario }) {
     {
       label: "Notificações",
       icon: <i className="fa-solid fa-bell" aria-hidden="true" />,
-      badge: "1",
+      badge:
+        notificacoesNaoLidas.length > 0
+          ? String(notificacoesNaoLidas.length)
+          : undefined,
       onClick: () => jumpTo("notificacoes-tecnico"),
     },
     {
@@ -295,10 +569,10 @@ export default function TecnicoDashboard({ usuario }) {
   ];
 
   const metrics = [
-    { icon: <i className="fa-solid fa-hourglass-half" aria-hidden="true" />, color: "#b67a19", label: "Ocorrências pendentes", number: 2, filter: "Pendentes" },
-    { icon: <i className="fa-solid fa-wrench" aria-hidden="true" />, color: "#2861c8", label: "Em andamento", number: 1, filter: "Em andamento" },
-    { icon: <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />, color: "#d9534f", label: "SLA crítico", number: 1, filter: "Pendentes" },
-    { icon: <i className="fa-solid fa-circle-check" aria-hidden="true" />, color: "#398e4f", label: "Concluídas (30 dias)", number: 6, filter: "Concluídas" },
+    { icon: <i className="fa-solid fa-hourglass-half" aria-hidden="true" />, color: "#b67a19", label: "Ocorrências pendentes", number: ocorrenciasPendentes.length, filter: "Pendentes" },
+    { icon: <i className="fa-solid fa-wrench" aria-hidden="true" />, color: "#2861c8", label: "Em andamento", number: ocorrenciasEmAndamento.length, filter: "Em andamento" },
+    { icon: <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />, color: "#d9534f", label: "SLA crítico", number: ocorrenciasSlaCritico.length, filter: "Pendentes" },
+    { icon: <i className="fa-solid fa-circle-check" aria-hidden="true" />, color: "#398e4f", label: "Concluídas", number: ocorrenciasConcluidas.length, filter: "Concluídas" },
   ];
 
   const formatDate = (date) => {
@@ -313,7 +587,7 @@ export default function TecnicoDashboard({ usuario }) {
     });
   };
 
-    const getOccurrenceTitle = (ocorrencia) =>
+  const getOccurrenceTitle = (ocorrencia) =>
     ocorrencia.contrato?.produtoApelido ||
     ocorrencia.equipamento ||
     ocorrencia.titulo ||
@@ -335,29 +609,12 @@ export default function TecnicoDashboard({ usuario }) {
     href: "#suporte-tecnico",
   };
 
-
-  
-  const notifications = [
-    {
-      id: "tecnico-pendente",
-      title: "1 notificação pendente",
-      description: "Você possui 1 atualização pendente para consultar nos seus atendimentos.",
-      unread: true,
-      onClick: () => jumpTo("notificacoes-tecnico"),
-    },
-    ...(ocorrencias.some((item) => (item.status || "Pendente").toLowerCase().includes("pendente"))
-      ? [{
-          id: "tecnico-fila",
-          title: "Ocorrências pendentes na fila",
-          description: "Confira os chamados aguardando início de atendimento.",
-          unread: false,
-          onClick: () => {
-            setFiltro("Pendentes");
-            jumpTo("ocorrencias-tecnico");
-          },
-        }]
-      : []),
-  ];
+  const subtitle =
+    atendimentosAtivos === 0
+      ? "Você não tem atendimentos ativos no momento."
+      : atendimentosAtivos === 1
+        ? "Você tem 1 atendimento ativo no momento. Confira suas atividades."
+        : `Você tem ${atendimentosAtivos} atendimentos ativos no momento. Confira suas atividades.`;
 
   return (
     <DashboardShell
@@ -371,7 +628,7 @@ export default function TecnicoDashboard({ usuario }) {
       <DashboardMain id="painel-tecnico">
         <DashboardIntro
           title={`Olá, ${usuario.nome}!`}
-          subtitle="Você tem 3 atendimentos ativos hoje. Confira suas atividades."
+          subtitle={subtitle}
         />
 
         <PageContent>
@@ -404,9 +661,9 @@ export default function TecnicoDashboard({ usuario }) {
 
             <Tabs>
               {[
-                { label: "Pendentes", count: 2 },
-                { label: "Em andamento", count: 1 },
-                { label: "Concluídas", count: 1 },
+                { label: "Pendentes", count: ocorrenciasPendentes.length },
+                { label: "Em andamento", count: ocorrenciasEmAndamento.length },
+                { label: "Concluídas", count: ocorrenciasConcluidas.length },
               ].map((tab) => (
                 <Tab
                   key={tab.label}
@@ -434,7 +691,7 @@ export default function TecnicoDashboard({ usuario }) {
                     }
                   >
                     <OccurrenceTop>
-                      <Priority>Alta prioridade</Priority>
+                      <Priority>Prioridade {ocorrencia.prioridade || "Média"}</Priority>
                       <Status>{ocorrencia.status}</Status>
                     </OccurrenceTop>
 
@@ -449,8 +706,9 @@ export default function TecnicoDashboard({ usuario }) {
                     <Metadata>
                       <span>
                         <i className="fa-solid fa-clock" aria-hidden="true" />
-                        Iniciado em{" "}
-                        {formatDate(atendimento?.dataHoraInicioAtendimento)}
+                        {atendimento?.dataHoraInicioAtendimento
+                          ? `Iniciado em ${formatDate(atendimento.dataHoraInicioAtendimento)}`
+                          : `Registrado em ${formatDate(ocorrencia.dataCriacao)}`}
                       </span>
                       <span>
                         <i className="fa-solid fa-location-dot" aria-hidden="true" />
@@ -471,14 +729,115 @@ export default function TecnicoDashboard({ usuario }) {
           <Section id="notificacoes-tecnico">
             <SectionHeader>
               <div>
-                <h2>Notificações</h2>
-                <p>Atualizações importantes sobre seus atendimentos.</p>
+                <h2>Central de notificações</h2>
+                <p>Atualizações importantes sobre sua fila e atendimentos.</p>
               </div>
+
+              <NotificationHeaderActions>
+                <UnreadPill $hasUnread={notificacoesNaoLidas.length > 0}>
+                  <i
+                    className={
+                      notificacoesNaoLidas.length > 0
+                        ? "fa-solid fa-bell"
+                        : "fa-solid fa-circle-check"
+                    }
+                    aria-hidden="true"
+                  />
+                  {notificacoesNaoLidas.length === 0
+                    ? "Tudo em dia"
+                    : notificacoesNaoLidas.length === 1
+                      ? "1 não lida"
+                      : `${notificacoesNaoLidas.length} não lidas`}
+                </UnreadPill>
+
+                {notificacoesNaoLidas.length > 0 && (
+                  <MarkAllReadButton
+                    type="button"
+                    onClick={marcarTodasNotificacoesComoLidas}
+                  >
+                    <i className="fa-solid fa-check-double" aria-hidden="true" />
+                    Marcar todas como lidas
+                  </MarkAllReadButton>
+                )}
+              </NotificationHeaderActions>
             </SectionHeader>
 
-            <SupportText>
-              Você possui 1 notificação pendente para consultar.
-            </SupportText>
+            <NotificationFilters>
+              <FilterChip
+                type="button"
+                $active={filtroNotificacoes === "todas"}
+                onClick={() => setFiltroNotificacoes("todas")}
+              >
+                Todas ({notifications.length})
+              </FilterChip>
+              <FilterChip
+                type="button"
+                $active={filtroNotificacoes === "nao-lidas"}
+                onClick={() => setFiltroNotificacoes("nao-lidas")}
+              >
+                Não lidas ({notificacoesNaoLidas.length})
+              </FilterChip>
+            </NotificationFilters>
+
+            {notificacoesExibidas.length > 0 ? (
+              <NotificationFeed>
+                {notificacoesExibidas.map((item) => (
+                  <NotificationCard
+                    key={item.id}
+                    $unread={item.unread}
+                    $accent={item.accent}
+                  >
+                    <NotificationIcon $bg={item.bg} $color={item.accent}>
+                      {item.icon}
+                    </NotificationIcon>
+
+                    <NotificationBody>
+                      <h3>
+                        {item.title}
+                        <NotificationTag $unread={item.unread}>
+                          {item.unread ? "Nova" : "Lida"}
+                        </NotificationTag>
+                      </h3>
+                      <p>{item.description}</p>
+
+                      <NotificationCardActions>
+                        <CardActionButton
+                          type="button"
+                          $primary
+                          onClick={() => {
+                            marcarNotificacaoComoLida(item.id);
+                            item.onClick?.();
+                          }}
+                        >
+                          {item.actionLabel}
+                          <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                        </CardActionButton>
+
+                        {item.unread && (
+                          <CardActionButton
+                            type="button"
+                            onClick={() => marcarNotificacaoComoLida(item.id)}
+                          >
+                            <i className="fa-solid fa-check" aria-hidden="true" />
+                            Marcar como lida
+                          </CardActionButton>
+                        )}
+                      </NotificationCardActions>
+                    </NotificationBody>
+                  </NotificationCard>
+                ))}
+              </NotificationFeed>
+            ) : (
+              <NotificationEmptyState>
+                <i className="fa-solid fa-circle-check" aria-hidden="true" />
+                <strong>Tudo em dia!</strong>
+                <p>
+                  {filtroNotificacoes === "nao-lidas"
+                    ? "Você já leu todas as suas notificações pendentes."
+                    : "Não há notificações registradas no momento."}
+                </p>
+              </NotificationEmptyState>
+            )}
           </Section>
 
           <Section id="suporte-tecnico">
