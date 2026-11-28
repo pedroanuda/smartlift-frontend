@@ -1,13 +1,13 @@
-<center>
-<img src="public/smartlift-logo.png" height="45" />
-<h1>SmartLift</h1>
-</center>
+<p align="center" style="line-height: 0">
+   <img src="public/smartlift-logo.png" height="60" />
+</p>
+<h1 align="center">SmartLift</h1>
 
 > **Tecnologia que conecta, gestão que eleva.**
 
 O **SmartLift** é uma plataforma digital desenvolvida para tornar o gerenciamento de manutenção de elevadores mais simples, rápido, transparente e organizado. A aplicação conecta **clientes**, **gestores** e **técnicos** em um único ambiente, centralizando chamados, atendimentos, indicadores operacionais e notificações.
 
----
+
 
 ## 📖 Visão Geral
 
@@ -18,7 +18,7 @@ Acesso por perfil na tela inicial, com rotas protegidas por autenticação e per
 - **Portal do Técnico**: métricas em tempo real com destaque para SLA crítico, fila de atendimentos atribuídos, central de notificações e suporte operacional.
 - **Detalhes da Ocorrência**: visualização completa do chamado, histórico de atendimentos e alterações, ações técnicas de status/relatório e avaliação com estrelas pelo cliente.
 
----
+
 
 ## 🔧 Tecnologias Utilizadas
 
@@ -28,7 +28,7 @@ Utilizamos toda a base de HTML, CSS e JS juntamente com as outras ferramentas qu
 - **[React Router](https://reactrouter.com/)** — roteamento SPA e proteção de rotas por perfil
 - **[Styled Components](https://styled-components.com/)** — estilização modular e responsiva
 
----
+
 
 ## 💾 Persistência Local
 
@@ -40,7 +40,7 @@ A aplicação opera com uma base simulada (`src/db.js`) integrada ao `localStora
 | `OcorrenciaService` | `smartlift.novasOcorrencias` | Cadastro de ocorrências, atualização de status, registros técnicos, histórico de alterações e avaliações |
 | `NotificacaoService` | `smartlift.notificacoesLidas` | Controle de notificações lidas por usuário |
 
----
+
 
 ## 🧑🏻‍💻 Como Executar o Projeto
 
@@ -66,7 +66,7 @@ A aplicação opera com uma base simulada (`src/db.js`) integrada ao `localStora
    - **Gestor** — Maria Souza
    - **Técnico** — Carlos Oliveira
 
----
+
 
 ## 💪 Time
 
