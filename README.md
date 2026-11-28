@@ -1,16 +1,79 @@
-# React + Vite
+<center>
+<img src="public/smartlift-logo.png" height="45" />
+<h1>SmartLift</h1>
+</center>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Tecnologia que conecta, gestão que eleva.**
 
-Currently, two official plugins are available:
+O **SmartLift** é uma plataforma digital desenvolvida para tornar o gerenciamento de manutenção de elevadores mais simples, rápido, transparente e organizado. A aplicação conecta **clientes**, **gestores** e **técnicos** em um único ambiente, centralizando chamados, atendimentos, indicadores operacionais e notificações.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 📖 Visão Geral
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Acesso por perfil na tela inicial, com rotas protegidas por autenticação e permissão (`ProtectedRoute`):
 
-## Expanding the ESLint configuration
+- **Portal do Cliente**: acompanhamento de chamados, abertura de novas ocorrências (com prioridade e anexos), consulta de equipamentos/contratos e central de notificações.
+- **Portal do Gestor**: visão geral estratégica, gestão completa de ocorrências, gráficos e indicadores operacionais e central de notificações.
+- **Portal do Técnico**: métricas em tempo real com destaque para SLA crítico, fila de atendimentos atribuídos, central de notificações e suporte operacional.
+- **Detalhes da Ocorrência**: visualização completa do chamado, histórico de atendimentos e alterações, ações técnicas de status/relatório e avaliação com estrelas pelo cliente.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🔧 Tecnologias Utilizadas
+
+Utilizamos toda a base de HTML, CSS e JS juntamente com as outras ferramentas que foram apresentadas durante o ano letivo. Algumas dessas ferramentas, são as que utilizamos aqui:
+
+- **[React](https://react.dev/)** — construção da interface de usuário
+- **[React Router](https://reactrouter.com/)** — roteamento SPA e proteção de rotas por perfil
+- **[Styled Components](https://styled-components.com/)** — estilização modular e responsiva
+
+---
+
+## 💾 Persistência Local
+
+A aplicação opera com uma base simulada (`src/db.js`) integrada ao `localStorage`, centralizada em três serviços com sincronização automática na mesma aba e entre abas:
+
+| Serviço | Chave no `localStorage` | Responsabilidade |
+| :--- | :--- | :--- |
+| `UsuarioService` | `smartlift.usuarioLogado` | Persistência da sessão do usuário logado e limpeza no logout |
+| `OcorrenciaService` | `smartlift.novasOcorrencias` | Cadastro de ocorrências, atualização de status, registros técnicos, histórico de alterações e avaliações |
+| `NotificacaoService` | `smartlift.notificacoesLidas` | Controle de notificações lidas por usuário |
+
+---
+
+## 🧑🏻‍💻 Como Executar o Projeto
+
+### Pré-requisitos
+- **Node.js** (versão 18 ou superior recomendada)
+- **npm**
+
+### Passo a passo
+
+1. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
+
+2. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Acesse no navegador:**
+   Abra o endereço exibido no terminal (geralmente `http://localhost:5173`) e escolha um dos perfis disponíveis na tela de login:
+   - **Cliente** — João Silva
+   - **Gestor** — Maria Souza
+   - **Técnico** — Carlos Oliveira
+
+---
+
+## 💪 Time
+
+Esse projeto foi feito em colaboração entre 5 pessoas como grupo:
+
+- Pedro Anuda
+- Brunna Saraiva
+- Ana Carolina
+- Lucas Peixoto
+- Thiago Neves
